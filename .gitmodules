@@ -1,0 +1,3 @@
+[submodule "bsp/cvitek/cv18xx_risc-v/applications/test"]
+	path = bsp/cvitek/cv18xx_risc-v/applications/test
+	url = git@github.com:unicornx/rtt-duo.git

@@ -325,7 +325,9 @@
 /* General Drivers Configuration */
 
 #define BSP_USING_UART
-#define RT_USING_UART1
+#define BSP_USING_UART1
+#define BSP_UART1_RX_PINNAME "IIC0_SDA"
+#define BSP_UART1_TX_PINNAME "IIC0_SCL"
 #define UART_IRQ_BASE 30
 /* end of General Drivers Configuration */
 #define BSP_USING_C906_LITTLE

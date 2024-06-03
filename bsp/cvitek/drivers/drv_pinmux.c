@@ -42,12 +42,12 @@ struct fmux {
 #define FS_NONE {fs_none, 0}
 
 #define FS_PINMUX(PIN_NAME) {                   \
-		.name = #PIN_NAME,                      \
+        .name = #PIN_NAME,                      \
         .addr = FMUX_GPIO_FUNCSEL_##PIN_NAME,   \
         .offset = PINMUX_OFFSET(PIN_NAME),      \
         .mask = PINMUX_MASK(PIN_NAME),          \
         .selected = 0,                          \
-	}
+    }
 
 
 /*
@@ -59,7 +59,7 @@ struct fmux {
 #if defined(SOC_TYPE_CV180X)
 
 struct fmux pinmux_array[] = {
-	FS_PINMUX(SD0_CLK),
+    FS_PINMUX(SD0_CLK),
     FS_PINMUX(SD0_CMD),
     FS_PINMUX(SD0_D0),
     FS_PINMUX(SD0_D1),
@@ -468,11 +468,11 @@ static int8_t pinmux_get_index(uint8_t pin_index, fs_type func_type)
 {
     const struct fselect *p;
     for (int i = 0; i < 8; i++) {
-		p = &(pin_selects_array[pin_index][i]);
-		LOG_D("[%d], type = %d, select = %d\n", i, p->type, p->select);
+        p = &(pin_selects_array[pin_index][i]);
+        LOG_D("[%d], type = %d, select = %d\n", i, p->type, p->select);
         if (p->type == func_type)
             return (int8_t)p->select; // it's safe bcos select should be [0, 7]
-	}
+    }
     return -1;
 }
 
@@ -489,8 +489,8 @@ static int pinmux_check_whitelist(const char *pin_name, const char *whitelist[])
 
 int pinmux_config(const char *pin_name, fs_type func_type, const char *whitelist[])
 {
-	const struct fmux *p_fmux;
-	int index;
+    const struct fmux *p_fmux;
+    int index;
     int8_t select;
 
     if (whitelist) {
@@ -500,14 +500,14 @@ int pinmux_config(const char *pin_name, fs_type func_type, const char *whitelist
         }
     }
 
-	for (index = 0; index < ARRAY_SIZE(pinmux_array); index++) {
+    for (index = 0; index < ARRAY_SIZE(pinmux_array); index++) {
         p_fmux = &(pinmux_array[index]);
         LOG_D("index[%d]: name: %s, addr: %d, offset: %d, mask: %d\n",
                 index, p_fmux->name, p_fmux->addr, p_fmux->offset, p_fmux->mask);
         if (0 == strcmp(pin_name, p_fmux->name)) {
             break;
         }
-	}
+    }
     if (index == ARRAY_SIZE(pinmux_array)) {
         LOG_W("Pin Name \"%s\" is not found!", pin_name);
         return -RT_ERROR;;
@@ -516,7 +516,7 @@ int pinmux_config(const char *pin_name, fs_type func_type, const char *whitelist
         LOG_W("Pin Name \"%s\" has been selected, duplicated?", pin_name);
         return -RT_ERROR;
     }
-    
+
     select = pinmux_get_index(index, func_type);
     if (-1 == select) {
         LOG_W("Can not found Function selection for Pin \"%s\"", pin_name);

@@ -11,7 +11,7 @@
 #define __DRV_PINMUX_H__
 
 /*
- * FIXME: At present, we only define the ones we will use, 
+ * FIXME: At present, we only define the ones we will use,
  * not all of them. We will need to add them later.
  */
 typedef enum _fs_type

@@ -115,13 +115,13 @@ static rt_err_t _wdt_control(rt_watchdog_t *wdt_device, int cmd, void *arg)
         break;
     case RT_DEVICE_CTRL_WDT_SET_TIMEOUT:
         wdt->timeout = *(rt_uint32_t *)arg;
-        csi_wdt_set_timeout(reg_base, wdt->timeout);
+        csi_wdt_set_timeout(reg_base, wdt->timeout * 1000);
         break;
     case RT_DEVICE_CTRL_WDT_GET_TIMEOUT:
         *(rt_uint32_t *)arg = wdt->timeout;
         break;
     case RT_DEVICE_CTRL_WDT_GET_TIMELEFT:
-        *(rt_uint32_t *)arg = (cvi_wdt_get_counter_value(reg_base) / (WDT_FREQ_DEFAULT / 1000U));
+        *(rt_uint32_t *)arg = (cvi_wdt_get_counter_value(reg_base) / WDT_FREQ_DEFAULT);
         break;
     case RT_DEVICE_CTRL_WDT_START:
         cvi_wdt_set_respond_system_reset(reg_base);

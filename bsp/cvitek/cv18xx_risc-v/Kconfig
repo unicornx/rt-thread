@@ -22,6 +22,7 @@ source "board/Kconfig"
 config BSP_USING_CV18XX
     bool
     select ARCH_RISCV64
+    select ENABLE_FPU
     select RT_USING_SYSTEM_WORKQUEUE
     select RT_USING_COMPONENTS_INIT
     select RT_USING_USER_MAIN

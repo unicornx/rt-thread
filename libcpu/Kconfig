@@ -250,6 +250,9 @@ config ARCH_RISCV64
     select ARCH_CPU_64BIT
     bool
 
+config ENABLE_FPU
+    bool
+
 config ARCH_IA32
     bool
 

@@ -27,7 +27,6 @@
 #define RT_KSERVICE_USING_STDLIB
 #define RT_KPRINTF_USING_LONGLONG
 #define RT_USING_DEBUG
-#define RT_DEBUGING_ASSERT
 #define RT_DEBUGING_COLOR
 #define RT_DEBUGING_CONTEXT
 
@@ -59,6 +58,7 @@
 #define ARCH_MM_MMU
 #define ARCH_RISCV
 #define ARCH_RISCV64
+#define ENABLE_FPU
 
 /* RT-Thread Components */
 
@@ -304,6 +304,9 @@
 /* HAL & SDK Drivers */
 
 /* STM32 HAL & SDK Drivers */
+
+
+/* Infineon HAL Packages */
 
 
 /* Kendryte SDK */

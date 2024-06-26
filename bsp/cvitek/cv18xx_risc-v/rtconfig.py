@@ -3,7 +3,7 @@ import os
 # toolchains options
 ARCH        ='risc-v'
 VENDOR      ='t-head'
-CPU         ='c906'
+CPU         ='c906_smode'
 CROSS_TOOL  ='gcc'
 
 if os.getenv('RTT_ROOT'):
@@ -41,8 +41,8 @@ if PLATFORM == 'gcc':
     OBJDUMP = PREFIX + 'objdump'
     OBJCPY  = PREFIX + 'objcopy'
 
-    DEVICE  = ' -mcmodel=medany -march=rv64imafdc -mabi=lp64'
-    CFLAGS  = DEVICE + ' -Wno-cpp -fvar-tracking -ffreestanding -fno-common -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -D_POSIX_SOURCE '
+    DEVICE  = ' -mcmodel=medany -march=rv64imafdc -mabi=lp64d'
+    CFLAGS  = DEVICE + ' -std=gnu11 -ffunction-sections -fdata-sections -Wl,--gc-sections -Wno-pointer-to-int-cast -fno-builtin -Wno-missing-field-initializers -fdiagnostics-color=always'
     AFLAGS  = ' -c' + DEVICE + ' -x assembler-with-cpp -D__ASSEMBLY__'
     LFLAGS  = DEVICE + ' -nostartfiles -Wl,--gc-sections,-Map=rtthread.map,-cref,-u,_start -T link.lds' + ' -lsupc++ -lgcc -static'
     CPATH   = ''

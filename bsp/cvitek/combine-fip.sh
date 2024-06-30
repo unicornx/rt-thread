@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 PROJECT_PATH=$1
 IMAGE_NAME=$2
 
@@ -9,41 +11,56 @@ if [ -z "$PROJECT_PATH" ] || [ -z "$IMAGE_NAME" ]; then
 fi
 
 ROOT_PATH=$(pwd)
-echo $ROOT_PATH
+echo ${ROOT_PATH}
 
 . board_env.sh
 
 get_board_type
-echo "board_type: ${BOARD_TYPE}"
 
-check_bootloader || exit 0
+echo $MV_BOARD_LINK
+echo $CHIP_ARCH
 
-export BLCP_2ND_PATH=${PROJECT_PATH}/${IMAGE_NAME}
+function do_combine()
+{
+	local PROJECT_PATH=$1
+	local IMAGE_NAME=$2
 
-pushd cvitek_bootloader
+	BLCP_IMG_RUNADDR=0x05200200
+	BLCP_PARAM_LOADADDR=0
+	NAND_INFO=00000000
+	NOR_INFO='FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'
+	FIP_COMPRESS=lzma
 
-. env.sh
+	BUILD_PLAT=${ROOT_PATH}/pre-build/fsbl/build/${MV_BOARD_LINK}
 
-get_build_board ${BOARD_TYPE}
+	CHIP_CONF_PATH=${BUILD_PLAT}/chip_conf.bin
+	DDR_PARAM_TEST_PATH=${ROOT_PATH}/pre-build/fsbl/test/cv181x/ddr_param.bin
+	BLCP_PATH=${ROOT_PATH}/pre-build/fsbl/test/empty.bin
 
-echo "board: ${MV_BOARD_LINK}"
+	MONITOR_PATH=${ROOT_PATH}/pre-build/opensbi/${MV_BOARD_LINK}/fw_dynamic.bin
+	LOADER_2ND_PATH=${ROOT_PATH}/pre-build/u-boot-2021.10/${MV_BOARD_LINK}/u-boot-raw.bin
 
-if [ ! -d opensbi/build/platform/generic ] || [ ! -d fsbl/build/${MV_BOARD_LINK} ] ||  [ ! -d u-boot-2021.10/build/${MV_BOARD_LINK} ]; then
-	do_build
-	
-	CHIP_ARCH_L=$(echo $CHIP_ARCH | tr '[:upper:]' '[:lower:]')
-	cp -rf build/output/${MV_BOARD_LINK}/cvi_board_memmap.ld ${ROOT_PATH}/c906_little/board/script/${CHIP_ARCH_L}
-else
-	echo "Build already done, skip build"
+	BLCP_2ND_PATH=$PROJECT_PATH/$IMAGE_NAME
 
-	do_combine
+	echo "Combining fip.bin..."
+	. ./pre-build/fsbl/build/${MV_BOARD_LINK}/blmacros.env && \
+	./pre-build/fsbl/plat/${CHIP_ARCH}/fiptool.py -v genfip \
+	${ROOT_PATH}/output/${BOARD_TYPE}/fip.bin \
+	--MONITOR_RUNADDR="${MONITOR_RUNADDR}" \
+	--BLCP_2ND_RUNADDR="${BLCP_2ND_RUNADDR}" \
+	--CHIP_CONF=${CHIP_CONF_PATH} \
+	--NOR_INFO=${NOR_INFO} \
+	--NAND_INFO=${NAND_INFO} \
+	--BL2=${BUILD_PLAT}/bl2.bin \
+	--BLCP_IMG_RUNADDR=${BLCP_IMG_RUNADDR} \
+	--BLCP_PARAM_LOADADDR=${BLCP_PARAM_LOADADDR} \
+	--BLCP=${BLCP_PATH} \
+	--DDR_PARAM=${DDR_PARAM_TEST_PATH} \
+	--BLCP_2ND=${BLCP_2ND_PATH} \
+	--MONITOR=${MONITOR_PATH} \
+	--LOADER_2ND=${LOADER_2ND_PATH} \
+	--compress=${FIP_COMPRESS}
+}
 
-	if [ $? -ne 0 ]; then
-		do_build
-	fi
-fi
-
-popd
-
-mkdir -p output/${MV_BOARD}
-cp -rf cvitek_bootloader/install/soc_${MV_BOARD_LINK}/fip.bin output/${MV_BOARD}/fip.bin
+mkdir -p output/${BOARD_TYPE}
+do_combine $PROJECT_PATH $IMAGE_NAME

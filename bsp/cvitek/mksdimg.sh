@@ -16,29 +16,22 @@ echo ${ROOT_PATH}
 
 get_board_type
 
+echo $MV_BOARD_LINK
+echo $CHIP_ARCH
+
 echo "start compress kernel..."
 
 lzma -c -9 -f -k ${PROJECT_PATH}/${IMAGE_NAME} > ${PROJECT_PATH}/dtb/${BOARD_TYPE}/Image.lzma
 
 mkdir -p ${ROOT_PATH}/output/${BOARD_TYPE}
-./mkimage -f ${PROJECT_PATH}/dtb/${BOARD_TYPE}/multi.its -r ${ROOT_PATH}/output/${BOARD_TYPE}/boot.${STORAGE_TYPE}
+./pre-build/tools/mkimage -f ${PROJECT_PATH}/dtb/${BOARD_TYPE}/multi.its -r ${ROOT_PATH}/output/${BOARD_TYPE}/boot.${STORAGE_TYPE}
 
 if [ "${STORAGE_TYPE}" == "spinor" ] || [ "${STORAGE_TYPE}" == "spinand" ]; then
-	
-	check_bootloader || exit 0
 
-	pushd cvitek_bootloader
-	
-	. env.sh
-	get_build_board ${BOARD_TYPE}
-	
-	CHIP_ARCH_L=$(echo $CHIP_ARCH | tr '[:upper:]' '[:lower:]')
-
+	echo "arch: ${CHIP_ARCH}"
 	echo "board: ${MV_BOARD_LINK}"
 	
-	IMGTOOL_PATH=build/tools/common/image_tool
-	FLASH_PARTITION_XML=build/boards/"${CHIP_ARCH_L}"/"${MV_BOARD_LINK}"/partition/partition_"${STORAGE_TYPE}".xml
+	IMGTOOL_PATH=${ROOT_PATH}/pre-build/tools/common/image_tool
+	FLASH_PARTITION_XML=${ROOT_PATH}/pre-build/boards/"${CHIP_ARCH}"/"${MV_BOARD_LINK}"/partition/partition_"${STORAGE_TYPE}".xml
 	python3 "$IMGTOOL_PATH"/raw2cimg.py "${ROOT_PATH}"/output/"${BOARD_TYPE}"/boot."$STORAGE_TYPE" "${ROOT_PATH}/output/${BOARD_TYPE}" "$FLASH_PARTITION_XML"
-
-	popd
 fi

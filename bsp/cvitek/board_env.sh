@@ -15,31 +15,32 @@ function get_board_type()
 			break
 		fi
 	done
-    export BOARD_TYPE=${BOARD_TYPE}
-    export STORAGE_TYPE=${STORAGE_TYPE}
-}
 
-function check_bootloader()
-{
-	restult=$(curl -m 10 -s http://www.ip-api.com/json)
-	COUNTRY=$(echo $restult | sed 's/.*"country":"\([^"]*\)".*/\1/')
-	echo "Country: $COUNTRY"
+	export BOARD_TYPE=${BOARD_TYPE}
+	export STORAGE_TYPE=${STORAGE_TYPE}
 
-	if [ "$COUNTRY" == "China" ]; then
-		BOOTLOADER_URL=https://gitee.com/flyingcys/cvitek_bootloader
-	else
-		BOOTLOADER_URL=https://github.com/flyingcys/cvitek_bootloader
+	echo $BOARD_TYPE
+	if [ "${BOARD_TYPE}" == "milkv-duo" ]; then
+		MV_BOARD_LINK="cv1800b_milkv_duo_sd"
+		CHIP_ARCH="cv180x"
+	elif [ "${BOARD_TYPE}" == "milkv-duo-spinand" ]; then
+		MV_BOARD_LINK="cv1800b_milkv_duo_spinand"
+		CHIP_ARCH="cv180x"
+	elif [ "${BOARD_TYPE}" == "milkv-duo-spinor" ]; then
+		MV_BOARD_LINK="cv1800b_milkv_duo_spinor"
+		CHIP_ARCH="cv180x"
+	elif [ "${BOARD_TYPE}" == "milkv-duo256m" ]; then
+		MV_BOARD_LINK="cv1812cp_milkv_duo256m_sd"
+		CHIP_ARCH="cv181x"
+	elif [ "${BOARD_TYPE}" == "milkv-duo256m-spinand" ]; then
+		MV_BOARD_LINK="cv1812cp_milkv_duo256m_spinand"
+		CHIP_ARCH="cv181x"
+	elif [ "${BOARD_TYPE}" == "milkv-duo256m-spinor" ]; then
+		MV_BOARD_LINK="cv1812cp_milkv_duo256m_spinor"
+		CHIP_ARCH="cv181x"
 	fi
 
-	if [ ! -d cvitek_bootloader ]; then
-	echo "cvitek_bootloader not exist, clone it from ${BOOTLOADER_URL}"
-	git clone ${BOOTLOADER_URL}
-
-	if [ $? -ne 0 ]; then
-    	echo "Failed to clone ${BOOTLOADER_URL} !"
-      	exit 1
-    fi
-fi
+	export MV_BOARD_LINK=${MV_BOARD_LINK}
+	export CHIP_ARCH=${CHIP_ARCH}
 }
-
 

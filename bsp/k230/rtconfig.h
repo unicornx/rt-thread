@@ -10,7 +10,7 @@
 #define RT_THREAD_PRIORITY_32
 #define RT_THREAD_PRIORITY_MAX 32
 #define RT_TICK_PER_SECOND 1000
-#define RT_USING_OVERFLOW_CHECK
+
 #define RT_USING_HOOK
 #define RT_HOOK_USING_FUNC_PTR
 #define RT_USING_HOOKLIST
@@ -125,7 +125,7 @@
 /* end of elm-chan's FatFs, Generic FAT Filesystem Module */
 #define RT_USING_DFS_DEVFS
 #define RT_USING_DFS_PTYFS
-#define RT_USING_DFS_CROMFS
+#define RT_USING_DFS_ROMFS
 #define RT_USING_DFS_TMPFS
 #define RT_USING_PAGECACHE
 
@@ -562,6 +562,6 @@
 #define BOARD_fpgac908
 #define __STACKSIZE__ 65536
 #define C908_PLIC_PHY_ADDR 0xF00000000
-#define BSP_ROOTFS_TYPE_CROMFS
+// #define BSP_ROOTFS_TYPE_CROMFS
 
 #endif

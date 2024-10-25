@@ -26,6 +26,7 @@
 #ifndef DRV_RTC_H__
 #define DRV_RTC_H__
 #include <stdint.h>
+#include <drivers/dev_rtc.h>
 
 #define IRQN_PMU_INTERRUPT   175
 #define RT_DEVICE_CTRL_RTC_SET_CALLBACK     0x44

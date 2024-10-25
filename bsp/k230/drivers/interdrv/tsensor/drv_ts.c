@@ -31,10 +31,10 @@
 #include "drv_ts.h"
 #include "board.h"
 #include "drv_hardlock.h"
-#ifdef RT_USING_POSIX
+#if defined(RT_USING_POSIX_DEVIO)
 #include <dfs_posix.h>
-#include <dfs_poll.h>
-#include <posix_termios.h>
+#include <poll.h>
+#include <termios.h>
 #endif
 
 #include <rthw.h>

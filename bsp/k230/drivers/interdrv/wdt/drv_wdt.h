@@ -10,6 +10,7 @@
 #define DRV_WDT_H_
 
 #include <drivers/dev_watchdog.h>
+#include <sys/ioctl.h>
 
 #define DEFUALT_TIMEOUT     30*1000 /* ms */
 #define KD_WDT_NUM_TOPS		16

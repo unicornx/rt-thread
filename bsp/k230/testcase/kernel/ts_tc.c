@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include "utest.h"
 #include <math.h>
+#include <page.h>
 
 #define TS_DEV_NAME               "ts"
 rt_device_t ts_dev = RT_NULL;
@@ -70,6 +71,8 @@ static void test_ts_read(void)
     rt_uint32_t cnt;
     double code = 0, temp = 0;
 
+    buffer = rt_malloc(64);
+
     ts_open();
 
     for(cnt=0; cnt<5; cnt++)
@@ -100,6 +103,8 @@ static void test_ts_read(void)
     }
 
     ts_close();
+
+    rt_free(buffer);
 
     return;
 }

@@ -24,7 +24,7 @@
  */
 
 #include <rtthread.h>
-#include <rtdebug.h>
+#include <rtdbg.h>
 #include "drivers/hwtimer.h"
 #include "board.h"
 #include "utest.h"

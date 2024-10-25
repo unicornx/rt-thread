@@ -34,6 +34,7 @@
 #include "sysctl_rst.h"
 #include "sysctl_clk.h"
 #include "tick.h"
+#include <drivers/adc.h>
 
 #ifdef RT_USING_ADC
 

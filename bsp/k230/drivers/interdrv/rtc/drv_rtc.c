@@ -32,11 +32,6 @@
 #include "ioremap.h"
 #include "drv_rtc.h"
 
-struct rt_rtc_device
-{
-    struct rt_device device;
-};
-
 static struct rt_rtc_device rtc_device;
 static volatile void *addr_base; 
 typedef void (*rtc_callback_t)(void);
@@ -308,7 +303,7 @@ static rt_err_t kd_rtc_close(rt_device_t dev)
     return RT_EOK;
 }
 
-static rt_size_t kd_rtc_read(rt_device_t dev, rt_off_t pos, void *buffer, rt_size_t size)
+static rt_ssize_t kd_rtc_read(rt_device_t dev, rt_off_t pos, void *buffer, rt_size_t size)
 {
     time_t t;
     rtc_timer_get(&t);
@@ -316,7 +311,7 @@ static rt_size_t kd_rtc_read(rt_device_t dev, rt_off_t pos, void *buffer, rt_siz
     return size;
 }
 
-static rt_size_t kd_rtc_write(rt_device_t dev, rt_off_t pos, const void *buffer, rt_size_t size)
+static rt_ssize_t kd_rtc_write(rt_device_t dev, rt_off_t pos, const void *buffer, rt_size_t size)
 {
     struct tm *tm = (struct tm*)buffer;
     time_t t = mktime(tm);
@@ -432,12 +427,12 @@ static int rt_hw_rtc_init(void)
     rt_memset(&rtc_device, 0, sizeof(rtc_device));
     addr_base = (void*)rt_ioremap((void *)RTC_BASE_ADDR, RTC_IO_SIZE);
 
-    rtc_device.device.type        = RT_Device_Class_RTC;
-    rtc_device.device.rx_indicate = RT_NULL;
-    rtc_device.device.tx_complete = RT_NULL;
-    rtc_device.device.ops         = &kd_rtc_ops;
-    rtc_device.device.user_data   = &addr_base;
-    rt_device_register(&rtc_device.device, "rtc", RT_DEVICE_FLAG_RDWR);
+    rtc_device.parent.type        = RT_Device_Class_RTC;
+    rtc_device.parent.rx_indicate = RT_NULL;
+    rtc_device.parent.tx_complete = RT_NULL;
+    rtc_device.parent.ops         = &kd_rtc_ops;
+    rtc_device.parent.user_data   = &addr_base;
+    rt_device_register(&rtc_device.parent, "rtc", RT_DEVICE_FLAG_RDWR);
 #ifndef RT_FASTBOOT
     rt_kprintf("rtc driver register OK\n");
 #endif

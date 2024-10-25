@@ -1,7 +1,7 @@
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <rtdef.h>
-#include <drivers/spi.h>
+#include <drivers/dev_spi.h>
 #include "sysctl_rst.h"
 #include "drv_spi.h"
 #include <stdint.h>

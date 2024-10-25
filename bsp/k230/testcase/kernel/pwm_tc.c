@@ -25,7 +25,7 @@
 
 #include <unistd.h>
 #include <stdio.h>
-#include <drivers/rt_drv_pwm.h>
+#include <drivers/dev_pwm.h>
 #include "drv_pwm.h"
 #include <rtdbg.h>
 #include "utest.h"

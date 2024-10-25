@@ -20,7 +20,7 @@ static void *cache_pv;
 static void *nocache_pv;
 void *phy;
 
-extern rt_mmu_info mmu_info;
+extern struct rt_aspace rt_kernel_space;
 
 static rt_err_t utest_tc_init(void)
 {
@@ -35,7 +35,7 @@ static void test_pages_alloc(void)
 
 static void test_hw_mmu_v2p(void)
 {
-    phy = rt_hw_mmu_v2p(&mmu_info, cache_pv);
+    phy = rt_hw_mmu_v2p(&rt_kernel_space, cache_pv);
     uassert_true(phy != NULL);
 }
 

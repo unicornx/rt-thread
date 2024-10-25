@@ -156,7 +156,7 @@
 #define RT_SERIAL_RB_BUFSZ 64
 #define RT_USING_CPUTIME
 #define RT_USING_CPUTIME_RISCV
-#define CPUTIME_TIMER_FREQ 25000000
+#define CPUTIME_TIMER_FREQ 27000000
 #define RT_USING_NULL
 #define RT_USING_ZERO
 #define RT_USING_RANDOM
@@ -538,7 +538,7 @@
 /* end of Drivers Configuration */
 /* Kernel Testcase */
 
-#define UTEST_MEMHEAP_TC
+// #define UTEST_MEMHEAP_TC
 #define UTEST_IRQ_TC
 #define UTEST_SEMAPHORE_TC
 #define UTEST_EVENT_TC

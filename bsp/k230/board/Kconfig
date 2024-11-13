@@ -31,7 +31,7 @@ menu "Drivers Configuration"
 
             config BSP_SD_MNT_DEVNAME
                 string "The name of the SD-BlkDev to be mounted"
-                default "sd13"
+                default "sd1"
         endif
 
 

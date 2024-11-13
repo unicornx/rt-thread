@@ -43,11 +43,11 @@ int mnt_init(void)
 #endif
 
 #ifdef BSP_SD_SDIO_DEV
-    while (mmcsd_wait_cd_changed(100) != MMCSD_HOST_PLUGED)
-        ;
-
-    if (dfs_mount(BSP_SD_MNT_DEVNAME, "/sdcard", "elm", 0, 0) != 0)
-    {
+#define str(s) #s
+#define xstr(s) str(s)
+    while (mmcsd_wait_cd_changed(100) != MMCSD_HOST_PLUGED);
+    if (dfs_mount("sd"xstr(BSP_SD_SDIO_DEV), "/sdcard", "elm", 0, 0) != 0) 
+	{
         rt_kprintf("Dir /sdcard mount failed!\n");
     }
 #endif

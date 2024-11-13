@@ -44,7 +44,7 @@ Duo 家族开发板采用 CV18xx 系列芯片。芯片的工作模式总结如�
 
 | BSP 名称      | 大小核  | 芯片架构        | 默认串口控制台 | 备注     |
 | ------------- | ------- |---------------- | -------------- | -------- |
-| cv18xx_risc-v | 大核    | RISC-V C906     | uart0          | 支持 MMU，支持 RT-Thread 标准版 和 RT-SMART 模式，默认运行 RT-Thread 标准版本 |
+| cv18xx_risc-v | 大核    | RISC-V C906     | uart0          | 支持 MMU，支持 RT-Thread 标准版 和 RT-SMART 模式，默认运行 RT-SMART 版本 |
 | c906-little   | 小核    | RISC-V C906     | uart1          | 无 MMU，运行 RT-Thread 标准版 |
 | cv18xx_aarch64| 大核    | ARM Cortex A53  | uart0          | 支持 MMU， 支持 RT-Thread 标准版 和 RT-SMART 版，默认运行 RT-Thread 标准版本 |
 

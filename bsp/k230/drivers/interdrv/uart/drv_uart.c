@@ -94,6 +94,7 @@
 struct device_uart
 {
     rt_ubase_t  hw_base;
+    void*  pa_base;
     rt_uint32_t irqno;
 };
 
@@ -251,7 +252,7 @@ static rt_err_t uart_control(struct rt_serial_device *serial, int cmd, void *arg
                 return -RT_ENOMEM;
             }
 
-            mmap2->ret = lwp_map_user_phy(lwp_self(), RT_NULL, (void*)(uart->hw_base), mmap2->length, 0);
+            mmap2->ret = lwp_map_user_phy(lwp_self(), RT_NULL, uart->pa_base, mmap2->length, 0);
         }
         break;
     }
@@ -352,7 +353,8 @@ int rt_hw_uart_init(void)
         serial->config           = config;
         serial->config.baud_rate = UART_DEFAULT_BAUDRATE;
 
-        uart->hw_base = (rt_base_t)rt_ioremap((void *)UART_ADDR, 0x1000);
+        uart->pa_base = (void *)UART_ADDR;
+        uart->hw_base = (rt_base_t)rt_ioremap(uart->pa_base, 0x1000);
         uart->irqno     = UART_IRQ;
 
         _uart_init((void*)(uart->hw_base));

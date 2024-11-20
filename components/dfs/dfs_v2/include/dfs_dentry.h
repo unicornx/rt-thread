@@ -11,7 +11,7 @@
 #ifndef __DFS_DENTRY_H__
 #define __DFS_DENTRY_H__
 
-// #include "dfs_file.h"
+#include "dfs_file.h"
 #include "dfs_fs.h"
 
 #ifdef __cplusplus

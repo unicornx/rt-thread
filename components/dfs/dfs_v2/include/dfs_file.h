@@ -14,7 +14,6 @@
 
 #include <dfs.h>
 #include <dfs_fs.h>
-#include <dfs_dentry.h>
 
 #ifdef __cplusplus
 extern "C"

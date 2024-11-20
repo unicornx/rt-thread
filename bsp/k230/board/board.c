@@ -18,13 +18,16 @@
 #include "drv_uart.h"
 
 #include <sbi.h>
+#include "ioremap.h"
+#include "sysctl_boot.h"
+#include <riscv_mmu.h>
 
 #ifdef RT_USING_SMART
 #include <mmu.h>
 #include "page.h"
 
 /* respect to boot loader, must be 0xFFFFFFC000200000 */
-RT_STATIC_ASSERT(kmem_region, KERNEL_VADDR_START == 0xFFFFFFC000220000);
+RT_STATIC_ASSERT(kmem_region, KERNEL_VADDR_START == 0x220000);
 
 rt_region_t init_page_region = {(rt_size_t)RT_HW_PAGE_START, (rt_size_t)RT_HW_PAGE_END};
 
@@ -32,6 +35,7 @@ extern size_t MMUTable[];
 
 struct mem_desc platform_mem_desc[] = {
     {KERNEL_VADDR_START, (rt_size_t)RT_HW_PAGE_END - 1, (rt_size_t)ARCH_MAP_FAILED, NORMAL_MEM},
+    {0x80000000, 0xC0000000 - 1, (rt_size_t)ARCH_MAP_FAILED, NORMAL_NOCACHE_MEM},
 };
 
 #define NUM_MEM_DESC (sizeof(platform_mem_desc) / sizeof(platform_mem_desc[0]))
@@ -54,6 +58,28 @@ void init_bss(void)
     {
         *dst++ = 0;
     }
+}
+
+#define MEM_RESVERD_SIZE    0x1000      /*隔离区*/
+#define MEM_IPCM_BASE 0x100000
+#define MEM_IPCM_SIZE 0xff000
+
+
+void init_ipcm_mem(void)
+{
+    rt_uint32_t *dst;
+    int i = 0;
+    dst = rt_ioremap((void *)(MEM_IPCM_BASE + MEM_IPCM_SIZE - MEM_RESVERD_SIZE - MEM_RESVERD_SIZE), MEM_RESVERD_SIZE);
+    if(dst == RT_NULL) {
+        rt_kprintf("ipcm ioremap error\n");
+    }
+    rt_memset((void *)dst, 0, MEM_RESVERD_SIZE);
+    for(i = 0; i < (0x1000 / 4); i++) {
+        if(dst[i] != 0) {
+            rt_kprintf("memest error addr:%p value:%d\n", &dst[i], dst[i]);
+        }
+    }
+    rt_iounmap((void *)dst);
 }
 
 static void __rt_assert_handler(const char *ex_string, const char *func, rt_size_t line)
@@ -92,6 +118,11 @@ void rt_hw_board_init(void)
     /* initialize memory system */
     rt_system_heap_init(RT_HW_HEAP_BEGIN, RT_HW_HEAP_END);
 #endif
+
+#if  MEM_IPCM_SIZE >  MEM_RESVERD_SIZE
+    init_ipcm_mem();
+#endif
+
     /* initalize interrupt */
     rt_hw_interrupt_init();
 
@@ -103,6 +134,12 @@ void rt_hw_board_init(void)
 #ifdef RT_USING_CONSOLE
     /* set console device */
     rt_console_set_device(RT_CONSOLE_DEVICE_NAME);
+#ifdef RT_USING_IPCM
+extern int rt_virt_tty_device_init();;
+    if(!rt_strcmp(RT_CONSOLE_DEVICE_NAME, "virt-tty"))
+        rt_virt_tty_device_init();
+#endif
+
 #endif /* RT_USING_CONSOLE */
 
 #ifdef RT_USING_COMPONENTS_INIT
@@ -112,7 +149,8 @@ void rt_hw_board_init(void)
 
 void rt_hw_cpu_reset(void)
 {
-    sbi_shutdown();
+    // sbi_shutdown();
+    sysctl_boot_reset_soc();
     while(1);
 }
 MSH_CMD_EXPORT_ALIAS(rt_hw_cpu_reset, reboot, reset machine);

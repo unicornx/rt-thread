@@ -3,22 +3,23 @@
 
 /* RT-Thread Kernel */
 
-#define RT_NAME_MAX 8
+#define RT_NAME_MAX 20
 #define RT_USING_SMART
 #define RT_CPUS_NR 1
 #define RT_ALIGN_SIZE 8
 #define RT_THREAD_PRIORITY_32
 #define RT_THREAD_PRIORITY_MAX 32
 #define RT_TICK_PER_SECOND 1000
+#define RT_USING_OVERFLOW_CHECK
 #define RT_USING_HOOK
 #define RT_HOOK_USING_FUNC_PTR
 #define RT_USING_HOOKLIST
 #define RT_USING_IDLE_HOOK
 #define RT_IDLE_HOOK_LIST_SIZE 4
-#define IDLE_THREAD_STACK_SIZE 8192
+#define IDLE_THREAD_STACK_SIZE 16384
 #define RT_USING_TIMER_SOFT
 #define RT_TIMER_THREAD_PRIO 4
-#define RT_TIMER_THREAD_STACK_SIZE 8192
+#define RT_TIMER_THREAD_STACK_SIZE 16384
 #define RT_USING_CPU_USAGE_TRACER
 
 /* kservice optimization */
@@ -42,6 +43,7 @@
 #define RT_USING_EVENT
 #define RT_USING_MAILBOX
 #define RT_USING_MESSAGEQUEUE
+#define RT_USING_SIGNALS
 /* end of Inter-Thread communication */
 
 /* Memory Management */
@@ -65,7 +67,7 @@
 #define ARCH_CPU_64BIT
 #define RT_USING_CACHE
 #define ARCH_MM_MMU
-#define KERNEL_VADDR_START 0xFFFFFFC000220000
+#define KERNEL_VADDR_START 0x220000
 #define ARCH_RISCV
 #define ARCH_RISCV_FPU
 #define ARCH_RISCV_FPU_D
@@ -73,33 +75,37 @@
 #define ARCH_USING_NEW_CTX_SWITCH
 #define ARCH_REMAP_KERNEL
 
+#define ARCH_RISCV_VECTOR
+#define ARCH_VECTOR_VLEN_128
+
 /* RT-Thread Components */
 
 #define RT_USING_COMPONENTS_INIT
 #define RT_USING_USER_MAIN
-#define RT_MAIN_THREAD_STACK_SIZE 8192
+#define RT_MAIN_THREAD_STACK_SIZE 16384
 #define RT_MAIN_THREAD_PRIORITY 10
 #define RT_USING_MSH
 #define RT_USING_FINSH
 #define FINSH_USING_MSH
 #define FINSH_THREAD_NAME "tshell"
 #define FINSH_THREAD_PRIORITY 20
-#define FINSH_THREAD_STACK_SIZE 8192
+#define FINSH_THREAD_STACK_SIZE 81920
 #define FINSH_USING_HISTORY
 #define FINSH_HISTORY_LINES 5
 #define FINSH_USING_SYMTAB
-#define FINSH_CMD_SIZE 80
+#define FINSH_CMD_SIZE 1024
 #define MSH_USING_BUILT_IN_COMMANDS
 #define FINSH_USING_DESCRIPTION
-#define FINSH_ARG_MAX 10
+#define FINSH_ARG_MAX 100
 #define FINSH_USING_OPTION_COMPLETION
-
+#define MSH_WAIT_LWP_FINISH
 /* DFS: device virtual file system */
 
 #define RT_USING_DFS
 #define DFS_USING_POSIX
+#define RT_USING_DFS_SHAREFS
 #define DFS_USING_WORKDIR
-#define DFS_FD_MAX 16
+#define DFS_FD_MAX 64
 #define RT_USING_DFS_V2
 #define RT_USING_DFS_ELMFAT
 
@@ -136,8 +142,11 @@
 
 /* Device Drivers */
 
+#define RT_USING_GNNE
+#define RT_USING_DEVMEM2
 #define RT_USING_DEVICE_IPC
 #define RT_UNAMED_PIPE_NUMBER 64
+#define RT_PIPE_BUFSZ 512
 #define RT_USING_SYSTEM_WORKQUEUE
 #define RT_SYSTEM_WORKQUEUE_STACKSIZE 8192
 #define RT_SYSTEM_WORKQUEUE_PRIORITY 23
@@ -151,7 +160,30 @@
 #define RT_USING_NULL
 #define RT_USING_ZERO
 #define RT_USING_RANDOM
+#define RT_USING_DEVMEM
 #define RT_USING_RTC
+// #define RT_USING_RTC_PMU
+#define RT_USING_I2C
+#define RT_USING_I2C0
+#define RT_USING_I2C1
+#define RT_USING_I2C3
+#define RT_USING_I2C4
+#define RT_USING_I2C_DUMP
+#define RT_USING_ADC
+#define RT_USING_OTP
+#define RT_USING_TS
+#define RT_USING_HWHASH
+#define RT_USING_AES
+#define RT_USING_SM4
+#define RT_USING_HARDLOCK
+#define RT_USING_GPIO
+#define RT_USING_SPI
+#define RT_USING_WDT
+#define RT_USING_PWM
+#define RT_USING_HWTIMER
+#define RT_USING_HW_TIMER0
+#define RT_USING_HW_TIMER1
+#define RT_USING_HW_TIMER2
 #define RT_USING_SDIO
 #define RT_SDIO_STACK_SIZE 8192
 #define RT_SDIO_THREAD_PRIORITY 15
@@ -159,7 +191,28 @@
 #define RT_MMCSD_THREAD_PREORITY 22
 #define RT_MMCSD_MAX_PARTITION 16
 #define RT_USING_PIN
+#define RT_USING_REGULATOR
 #define RT_USING_KTIME
+/* canaan uart driver for uart1 uart2 uart4 */
+// #define RT_USING_CANAAN_UART
+// #define RT_USING_UART1
+// #define RT_USING_UART2
+// #define RT_USING_UART4
+#define UART_BUFFER_SIZE     (1024 * 1024)
+#define POLLIN_SIZE          (UART_BUFFER_SIZE / 2)
+#define UART_TIMEOUT         (1000)
+
+//#define PKG_USING_CHERRYUSB
+//#define CONFIG_ENABLE_USB_DEVICE 1
+//#define PKG_CHERRYUSB_DEVICE_DWC2
+//#define PKG_CHERRYUSB_DEVICE_DWC2_PORT_HS
+//#define PKG_CHERRYUSB_DEVICE
+//#define PKG_CHERRYUSB_DEVICE_CDC
+//#define PKG_CHERRYUSB_DEVICE_MSC
+/* Using USB */
+
+/*Using fast boot*/
+#define RT_FASTBOOT
 /* end of Device Drivers */
 
 /* C/C++ and POSIX layer */
@@ -483,8 +536,31 @@
 /* Drivers Configuration */
 
 /* end of Drivers Configuration */
+/* Kernel Testcase */
+
+#define UTEST_MEMHEAP_TC
+#define UTEST_IRQ_TC
+#define UTEST_SEMAPHORE_TC
+#define UTEST_EVENT_TC
+#define UTEST_TIMER_TC
+#define UTEST_MESSAGEQUEUE_TC
+#define UTEST_MUTEX_TC
+#define UTEST_MAILBOX_TC
+#define UTEST_THREAD_TC
+#define UTEST_MMU_TC
+#define UTEST_ADC
+#define UTEST_SPI_NAND
+#define UTEST_OTP
+#define UTEST_WDT
+#define UTEST_TS
+// #define UTEST_RTC
+// #define UTEST_HWTIMER
+// #define UTEST_PWM
+//#define UTEST_I2C_OV9282
+//#define UTEST_I2C_TMP103
+// #define UTEST_GPIO
 #define BOARD_fpgac908
-#define __STACKSIZE__ 8192
+#define __STACKSIZE__ 65536
 #define C908_PLIC_PHY_ADDR 0xF00000000
 #define BSP_ROOTFS_TYPE_CROMFS
 

@@ -29,6 +29,9 @@ if GetDepend(['RT_USING_ZERO']):
 if GetDepend(['RT_USING_RANDOM']):
     src = src + ['rt_random.c']
 
+if GetDepend(['RT_USING_DEVMEM']):
+    src = src + ['rt_dev_mem.c']
+
 if len(src):
     group = DefineGroup('DeviceDrivers', src, depend = [''], CPPPATH = CPPPATH)
 

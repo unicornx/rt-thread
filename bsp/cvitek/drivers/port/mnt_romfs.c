@@ -36,11 +36,11 @@ static void sd_mount(void *parameter)
     {
         rt_thread_mdelay(500);
 
-        if (rt_device_find("sd0") != RT_NULL)
+        if (rt_device_find("sd1") != RT_NULL)
         {
-            if (dfs_mount("sd0", "/sdcard", "elm", 0, 0) == RT_EOK)
+            if (dfs_mount("sd1", "/", "elm", 0, 0) == RT_EOK)
             {
-                LOG_I("sd card mount to '/sdcard'");
+                LOG_I("sd card mount to '/'");
                 break;
             }
             else
@@ -53,10 +53,12 @@ static void sd_mount(void *parameter)
 
 int mount_init(void)
 {
+#if 0
     if(dfs_mount(RT_NULL, "/", "rom", 0, &romfs_root) != 0)
     {
         LOG_E("rom mount to '/' failed!");
     }
+#endif
 
 #ifdef BSP_USING_ON_CHIP_FLASH_FS
     struct rt_device *flash_dev = RT_NULL;

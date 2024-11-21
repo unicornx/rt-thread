@@ -9,6 +9,8 @@
  */
 #include <rtthread.h>
 
+#include "delay.h"
+
 #ifdef RT_USING_DFS
 #include <dfs_fs.h>
 #include "dfs_romfs.h"
@@ -105,6 +107,17 @@ int mount_init(void)
 
     return RT_EOK;
 }
-INIT_APP_EXPORT(mount_init);
+//INIT_APP_EXPORT(mount_init);
+//INIT_ENV_EXPORT(mount_init);
+
+#if 1
+int mnt_init(void)
+{
+    sd_mount(NULL);
+
+    return 0;
+}
+INIT_ENV_EXPORT(mnt_init);
+#endif
 
 #endif /* RT_USING_DFS */

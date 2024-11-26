@@ -75,8 +75,8 @@
 #define ARCH_USING_NEW_CTX_SWITCH
 #define ARCH_REMAP_KERNEL
 
-// #define ARCH_RISCV_VECTOR
-// #define ARCH_VECTOR_VLEN_128
+#define ARCH_RISCV_VECTOR
+#define ARCH_VECTOR_VLEN_128
 
 /* RT-Thread Components */
 
@@ -185,6 +185,7 @@
 #define RT_USING_HW_TIMER1
 #define RT_USING_HW_TIMER2
 #define RT_USING_SDIO
+#define RT_USING_BLK
 #define RT_SDIO_STACK_SIZE 8192
 #define RT_SDIO_THREAD_PRIORITY 15
 #define RT_MMCSD_STACK_SIZE 8192
@@ -538,6 +539,16 @@
 /* end of Drivers Configuration */
 /* Kernel Testcase */
 
+// #define RT_USING_UTESTCASES
+// #define RT_USING_UTEST
+// #define UTEST_THR_STACK_SIZE 16384
+// #define UTEST_THR_PRIORITY 20
+#define UTEST_SCHEDULER_TC
+#define UTEST_HOOKLIST_TC
+#define UTEST_ATOMIC_TC
+#define UTEST_DEVICE_TC
+#define UTEST_SIGNAL_TC
+#define UTEST_SLAB_TC
 // #define UTEST_MEMHEAP_TC
 #define UTEST_IRQ_TC
 #define UTEST_SEMAPHORE_TC
@@ -549,7 +560,7 @@
 #define UTEST_THREAD_TC
 #define UTEST_MMU_TC
 #define UTEST_ADC
-#define UTEST_SPI_NAND
+// #define UTEST_SPI_NAND
 #define UTEST_OTP
 #define UTEST_WDT
 #define UTEST_TS

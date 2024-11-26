@@ -14,7 +14,7 @@ if os.getenv('RTT_CC'):
 
 if  CROSS_TOOL == 'gcc':
     PLATFORM    = 'gcc'
-    EXEC_PATH   = r'/opt/toolchain/riscv64gc-linux-musleabi_for_x86_64-pc-linux-gnu/bin'
+    EXEC_PATH   = r'/home/yixinghua/env/rt-thread/rt-smart_v13.2.0-release_1109/bin'
 else:
     print('Please make sure your toolchains is GNU GCC!')
     exit(0)
@@ -41,7 +41,7 @@ if PLATFORM == 'gcc':
     OBJDUMP = PREFIX + 'objdump'
     OBJCPY  = PREFIX + 'objcopy'
 
-    DEVICE  = ' -mcmodel=medany -march=rv64imafdc -mabi=lp64'
+    DEVICE  = ' -mcmodel=medany -march=rv64imafdcv -mabi=lp64d'
     CFLAGS  = DEVICE + ' -Wno-cpp -fvar-tracking -ffreestanding -fno-common -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -D_POSIX_SOURCE '
     AFLAGS  = ' -c' + DEVICE + ' -x assembler-with-cpp -D__ASSEMBLY__'
     LFLAGS  = DEVICE + ' -nostartfiles -Wl,--gc-sections,-Map=rtthread.map,-cref,-u,_start -T link.lds' + ' -lsupc++ -lgcc -static'

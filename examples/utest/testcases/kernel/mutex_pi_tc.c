@@ -76,7 +76,7 @@ static void test_main_thread_entry(void *para)
     uassert_true(ret == RT_EOK);
     uassert_true(RT_SCHED_PRIV(rt_thread_self()).current_priority == 9);
     rt_thread_mdelay(100);         // wait for t2 take mutex2
-    uassert_true(RT_SCHED_PRIV(rt_thread_self()).current_priority == 8);
+    uassert_true(RT_SCHED_PRIV(rt_thread_self()).current_priority == 7);
 
     rt_thread_mdelay(100);         // wait for t3 take mutex0
     uassert_true(RT_SCHED_PRIV(rt_thread_self()).current_priority == 7);

@@ -34,7 +34,7 @@ rt_region_t init_page_region = {(rt_size_t)RT_HW_PAGE_START, (rt_size_t)RT_HW_PA
 extern size_t MMUTable[];
 
 struct mem_desc platform_mem_desc[] = {
-    {KERNEL_VADDR_START, (rt_size_t)RT_HW_PAGE_END - 1, (rt_size_t)ARCH_MAP_FAILED, NORMAL_MEM},
+    {KERNEL_VADDR_START, (rt_size_t)0xFFFFFFC020000000 - 1, (rt_size_t)ARCH_MAP_FAILED, NORMAL_MEM},
     {0xFFFFFFC080000000, 0xFFFFFFC0C0000000 - 1, (rt_size_t)ARCH_MAP_FAILED, NORMAL_NOCACHE_MEM}
 };
 

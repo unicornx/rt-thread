@@ -6,6 +6,9 @@
 #include "usbh_core.h"
 #include "usbh_hub.h"
 #include "usb_dwc2_reg.h"
+#ifdef ARCH_MM_MMU
+#include <mmu.h>
+#endif
 
 #ifndef CONFIG_USBHOST_PIPE_NUM
 #define CONFIG_USBHOST_PIPE_NUM 12
@@ -30,8 +33,8 @@
 #endif
 
 #define USB_OTG_GLB     ((DWC2_GlobalTypeDef *)(bus->hcd.reg_base))
-#define USB_OTG_PCGCCTL *(__IO uint32_t *)((uint32_t)bus->hcd.reg_base + USB_OTG_PCGCCTL_BASE)
-#define USB_OTG_HPRT    *(__IO uint32_t *)((uint32_t)bus->hcd.reg_base + USB_OTG_HOST_PORT_BASE)
+#define USB_OTG_PCGCCTL *(__IO uint32_t *)(bus->hcd.reg_base + USB_OTG_PCGCCTL_BASE)
+#define USB_OTG_HPRT    *(__IO uint32_t *)(bus->hcd.reg_base + USB_OTG_HOST_PORT_BASE)
 #define USB_OTG_HOST    ((DWC2_HostTypeDef *)(bus->hcd.reg_base + USB_OTG_HOST_BASE))
 #define USB_OTG_HC(i)   ((DWC2_HostChannelTypeDef *)(bus->hcd.reg_base + USB_OTG_HOST_CHANNEL_BASE + ((i)*USB_OTG_HOST_CHANNEL_SIZE)))
 
@@ -44,6 +47,11 @@ struct dwc2_chan {
     usb_osal_sem_t waitsem;
     struct usbh_urb *urb;
     uint32_t iso_frame_idx;
+#ifdef ARCH_MM_MMU
+#define USB_BUF_ALIGN_SIZE (16*1024)
+    void *buf;
+    void *dma_buf;
+#endif
 };
 
 struct dwc2_hcd {
@@ -63,13 +71,6 @@ static inline int dwc2_reset(struct usbh_bus *bus)
 {
     volatile uint32_t count = 0U;
 
-    /* Wait for AHB master IDLE state. */
-    do {
-        if (++count > 200000U) {
-            return -1;
-        }
-    } while ((USB_OTG_GLB->GRSTCTL & USB_OTG_GRSTCTL_AHBIDL) == 0U);
-
     /* Core Soft Reset */
     count = 0U;
     USB_OTG_GLB->GRSTCTL |= USB_OTG_GRSTCTL_CSRST;
@@ -78,7 +79,16 @@ static inline int dwc2_reset(struct usbh_bus *bus)
         if (++count > 200000U) {
             return -1;
         }
-    } while ((USB_OTG_GLB->GRSTCTL & USB_OTG_GRSTCTL_CSRST) == USB_OTG_GRSTCTL_CSRST);
+    } while ((USB_OTG_GLB->GRSTCTL & (1 << 29)) == 0);
+
+    USB_OTG_GLB->GRSTCTL = (1 << 29);
+
+    /* Wait for AHB master IDLE state. */
+    do {
+        if (++count > 200000U) {
+            return -1;
+        }
+    } while ((USB_OTG_GLB->GRSTCTL & USB_OTG_GRSTCTL_AHBIDL) == 0U);
 
     return 0;
 }
@@ -259,10 +269,20 @@ static inline void dwc2_chan_transfer(struct usbh_bus *bus, uint8_t ch_num, uint
     USB_OTG_HC(ch_num)->HCTSIZ = (size & USB_OTG_HCTSIZ_XFRSIZ) |
                                  (((uint32_t)num_packets << 19) & USB_OTG_HCTSIZ_PKTCNT) |
                                  (((uint32_t)pid << 29) & USB_OTG_HCTSIZ_DPID);
+#ifdef ARCH_MM_MMU
+    struct dwc2_chan *chan;
 
+    chan = &g_dwc2_hcd[bus->hcd.hcd_id].chan_pool[ch_num];
+    chan->buf = buf;
+    if ((ep_addr & USB_EP_DIR_MASK) == USB_EP_DIR_OUT)
+        memcpy(chan->dma_buf, chan->buf, size);
+    rt_hw_cpu_dcache_clean(chan->dma_buf, size);
+    /* xfer_buff MUST be 32-bits aligned */
+    USB_OTG_HC(ch_num)->HCDMA = (uint32_t)(chan->dma_buf + PV_OFFSET);
+#else
     /* xfer_buff MUST be 32-bits aligned */
     USB_OTG_HC(ch_num)->HCDMA = (uint32_t)buf;
-
+#endif
     is_oddframe = (((uint32_t)USB_OTG_HOST->HFNUM & 0x01U) != 0U) ? 0U : 1U;
     USB_OTG_HC(ch_num)->HCCHAR &= ~USB_OTG_HCCHAR_ODDFRM;
     USB_OTG_HC(ch_num)->HCCHAR |= (uint32_t)is_oddframe << 29;
@@ -458,6 +478,9 @@ int usb_hc_init(struct usbh_bus *bus)
 
     for (uint8_t chidx = 0; chidx < CONFIG_USBHOST_PIPE_NUM; chidx++) {
         g_dwc2_hcd[bus->hcd.hcd_id].chan_pool[chidx].waitsem = usb_osal_sem_create(0);
+#ifdef ARCH_MM_MMU
+        g_dwc2_hcd[bus->hcd.hcd_id].chan_pool[chidx].dma_buf = usb_osal_malloc(USB_BUF_ALIGN_SIZE);
+#endif
     }
 
     usb_hc_low_level_init(bus);
@@ -583,6 +606,9 @@ int usb_hc_deinit(struct usbh_bus *bus)
 
     for (uint8_t chidx = 0; chidx < CONFIG_USBHOST_PIPE_NUM; chidx++) {
         usb_osal_sem_delete(g_dwc2_hcd[bus->hcd.hcd_id].chan_pool[chidx].waitsem);
+#ifdef ARCH_MM_MMU
+        usb_osal_free(g_dwc2_hcd[bus->hcd.hcd_id].chan_pool[chidx].dma_buf);
+#endif
     }
 
     usb_hc_low_level_deinit(bus);
@@ -902,7 +928,10 @@ static void dwc2_inchan_irq_handler(struct usbh_bus *bus, uint8_t ch_num)
 
             uint32_t count = chan->xferlen - (USB_OTG_HC(ch_num)->HCTSIZ & USB_OTG_HCTSIZ_XFRSIZ);                        /* how many size has received */
             uint32_t has_used_packets = chan->num_packets - ((USB_OTG_HC(ch_num)->HCTSIZ & USB_OTG_HCTSIZ_PKTCNT) >> 19); /* how many packets have used */
-
+#ifdef ARCH_MM_MMU
+            rt_hw_cpu_dcache_invalidate(chan->dma_buf, count);
+            memcpy(chan->buf, chan->dma_buf, count);
+#endif
             urb->actual_length += count;
 
             uint8_t data_toggle = ((USB_OTG_HC(ch_num)->HCTSIZ & USB_OTG_HCTSIZ_DPID) >> USB_OTG_HCTSIZ_DPID_Pos);

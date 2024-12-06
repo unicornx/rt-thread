@@ -437,11 +437,28 @@ void usbh_rtl8152_eth_input(uint8_t *buf, uint32_t buflen)
     usbh_lwip_eth_input_common(g_rtl8152_dev.netif, buf, buflen);
 }
 
+#ifdef RT_USING_DEVICE_OPS
+const static struct rt_device_ops rtl8152_device_ops =
+{
+    RT_NULL,
+    RT_NULL,
+    RT_NULL,
+    RT_NULL,
+    RT_NULL,
+    rt_usbh_rtl8152_control
+};
+#endif
+
 void usbh_rtl8152_run(struct usbh_rtl8152 *rtl8152_class)
 {
     memset(&g_rtl8152_dev, 0, sizeof(struct eth_device));
 
+#ifdef RT_USING_DEVICE_OPS
+    g_rtl8152_dev.parent.ops = &rtl8152_device_ops;
+#else
     g_rtl8152_dev.parent.control = rt_usbh_rtl8152_control;
+#endif
+
     g_rtl8152_dev.eth_rx = NULL;
     g_rtl8152_dev.eth_tx = rt_usbh_rtl8152_eth_tx;
     g_rtl8152_dev.parent.user_data = rtl8152_class;
@@ -449,7 +466,7 @@ void usbh_rtl8152_run(struct usbh_rtl8152 *rtl8152_class)
     eth_device_init(&g_rtl8152_dev, "u4");
     eth_device_linkchange(&g_rtl8152_dev, RT_TRUE);
 
-    usb_osal_thread_create("usbh_rtl8152_rx", 2048, CONFIG_USBHOST_PSC_PRIO + 1, usbh_rtl8152_rx_thread, NULL);
+    usb_osal_thread_create("usbh_rtl8152_rx", 4096, CONFIG_USBHOST_PSC_PRIO + 1, usbh_rtl8152_rx_thread, NULL);
 }
 
 void usbh_rtl8152_stop(struct usbh_rtl8152 *rtl8152_class)

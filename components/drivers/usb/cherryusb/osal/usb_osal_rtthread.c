@@ -196,10 +196,10 @@ void usb_osal_msleep(uint32_t delay)
 
 void *usb_osal_malloc(size_t size)
 {
-    return rt_malloc(size);
+    return rt_malloc_align(size, 64);
 }
 
 void usb_osal_free(void *ptr)
 {
-    rt_free(ptr);
+    rt_free_align(ptr);
 }

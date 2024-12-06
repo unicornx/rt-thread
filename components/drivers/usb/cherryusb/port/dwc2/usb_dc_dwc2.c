@@ -95,7 +95,7 @@
 
 #define USB_OTG_GLB      ((DWC2_GlobalTypeDef *)(USBD_BASE))
 #define USB_OTG_DEV      ((DWC2_DeviceTypeDef *)(USBD_BASE + USB_OTG_DEVICE_BASE))
-#define USB_OTG_PCGCCTL  *(__IO uint32_t *)((uint32_t)USBD_BASE + USB_OTG_PCGCCTL_BASE)
+#define USB_OTG_PCGCCTL  *(__IO uint32_t *)(USBD_BASE + USB_OTG_PCGCCTL_BASE)
 #define USB_OTG_INEP(i)  ((DWC2_INEndpointTypeDef *)(USBD_BASE + USB_OTG_IN_ENDPOINT_BASE + ((i)*USB_OTG_EP_REG_SIZE)))
 #define USB_OTG_OUTEP(i) ((DWC2_OUTEndpointTypeDef *)(USBD_BASE + USB_OTG_OUT_ENDPOINT_BASE + ((i)*USB_OTG_EP_REG_SIZE)))
 #define USB_OTG_FIFO(i)  *(__IO uint32_t *)(USBD_BASE + USB_OTG_FIFO_BASE + ((i)*USB_OTG_FIFO_SIZE))
@@ -123,13 +123,6 @@ static inline int dwc2_reset(uint8_t busid)
 {
     volatile uint32_t count = 0U;
 
-    /* Wait for AHB master IDLE state. */
-    do {
-        if (++count > 200000U) {
-            return -1;
-        }
-    } while ((USB_OTG_GLB->GRSTCTL & USB_OTG_GRSTCTL_AHBIDL) == 0U);
-
     /* Core Soft Reset */
     count = 0U;
     USB_OTG_GLB->GRSTCTL |= USB_OTG_GRSTCTL_CSRST;
@@ -138,7 +131,16 @@ static inline int dwc2_reset(uint8_t busid)
         if (++count > 200000U) {
             return -1;
         }
-    } while ((USB_OTG_GLB->GRSTCTL & USB_OTG_GRSTCTL_CSRST) == USB_OTG_GRSTCTL_CSRST);
+    } while ((USB_OTG_GLB->GRSTCTL & (1 << 29)) == 0);
+
+    USB_OTG_GLB->GRSTCTL = (1 << 29);
+
+    /* Wait for AHB master IDLE state. */
+    do {
+        if (++count > 200000U) {
+            return -1;
+        }
+    } while ((USB_OTG_GLB->GRSTCTL & USB_OTG_GRSTCTL_AHBIDL) == 0U);
 
     return 0;
 }

@@ -25,6 +25,7 @@
 
 #include <rtthread.h>
 #include <rthw.h>
+#include <ioremap.h>
 #include "usbd_core.h"
 #include "usbh_core.h"
 
@@ -50,7 +51,7 @@ static void sysctl_reset_hw_done(volatile uint32_t *reset_reg, uint8_t reset_bit
 #define USB_DMPULLDOWN0 (1 << 8)
 #define USB_DPPULLDOWN0 (1 << 9)
 
-#ifdef PKG_CHERRYUSB_HOST
+#ifdef RT_CHERRYUSB_HOST
 static void usb_hc_interrupt_cb(int irq, void *arg_pv)
 {
     extern void USBH_IRQHandler(uint8_t busid);
@@ -59,33 +60,29 @@ static void usb_hc_interrupt_cb(int irq, void *arg_pv)
 
 void usb_hc_low_level_init(struct usbh_bus *bus)
 {
-    uint32_t *hs_reg;
-    uint32_t usb_ctl3;
+    uint32_t *reg;
 
     if (bus->hcd.hcd_id == 0) {
-        sysctl_reset_hw_done((volatile uint32_t *)0x9110103c, 0, 28);
+        reg = (uint32_t *)rt_ioremap((void *)0x9110103c, 4);
+        sysctl_reset_hw_done(reg, 0, 28);
+        rt_iounmap(reg);
 
-        hs_reg = (uint32_t *)rt_ioremap((void *)(0x91585000 + 0x7C), 0x1000);
-        usb_ctl3 = *hs_reg | USB_IDPULLUP0;
-
-        *hs_reg = usb_ctl3 | (USB_DMPULLDOWN0 | USB_DPPULLDOWN0);
-
-        rt_iounmap(hs_reg);
+        reg = (uint32_t *)rt_ioremap((void *)0x9158507c, 4);
+        *reg |= USB_IDPULLUP0 | USB_DMPULLDOWN0 | USB_DPPULLDOWN0;
+        rt_iounmap(reg);
 
         rt_hw_interrupt_install(173, usb_hc_interrupt_cb, NULL, "usbh0");
         rt_hw_interrupt_umask(173);
-
     } else {
-        sysctl_reset_hw_done((volatile uint32_t *)0x9110103c, 1, 29);
+        reg = (uint32_t *)rt_ioremap((void *)0x9110103c, 4);
+        sysctl_reset_hw_done(reg, 1, 29);
+        rt_iounmap(reg);
 
-        hs_reg = (uint32_t *)rt_ioremap((void *)(0x91585000 + 0x9C), 0x1000);
-        usb_ctl3 = *hs_reg | USB_IDPULLUP0;
+        reg = (uint32_t *)rt_ioremap((void *)0x9158509c, 4);
+        *reg |= USB_IDPULLUP0 | USB_DMPULLDOWN0 | USB_DPPULLDOWN0;
+        rt_iounmap(reg);
 
-        *hs_reg = usb_ctl3 | (USB_DMPULLDOWN0 | USB_DPPULLDOWN0);
-
-        rt_iounmap(hs_reg);
-
-        rt_hw_interrupt_install(174, usb_hc_interrupt_cb, 1, "usbh1");
+        rt_hw_interrupt_install(174, usb_hc_interrupt_cb, (void *)1, "usbh1");
         rt_hw_interrupt_umask(174);
     }
 }
@@ -105,7 +102,7 @@ uint32_t usbh_get_dwc2_gccfg_conf(uint32_t reg_base)
 }
 #endif
 
-#ifdef PKG_CHERRYUSB_DEVICE
+#ifdef RT_CHERRYUSB_DEVICE
 static void usb_dc_interrupt_cb(int irq, void *arg_pv)
 {
     extern void USBD_IRQHandler(uint8_t busid);
@@ -115,10 +112,15 @@ static void usb_dc_interrupt_cb(int irq, void *arg_pv)
 #ifdef CHERRYUSB_DEVICE_USING_USB0
 void usb_dc_low_level_init(uint8_t busid)
 {
-    sysctl_reset_hw_done((volatile uint32_t *)0x9110103c, 0, 28);
-    uint32_t *hs_reg = (uint32_t *)rt_ioremap((void *)(0x91585000 + 0x7C), 0x1000);
-    *hs_reg = 0x37;
-    rt_iounmap(hs_reg);
+    uint32_t *reg;
+
+    reg = (uint32_t *)rt_ioremap((void *)0x9110103c, 4);
+    sysctl_reset_hw_done(reg, 0, 28);
+    rt_iounmap(reg);
+
+    reg = (uint32_t *)rt_ioremap((void *)0x9158507c, 4);
+    *reg = 0x37;
+    rt_iounmap(reg);
 
     rt_hw_interrupt_install(173, usb_dc_interrupt_cb, NULL, "usbd");
     rt_hw_interrupt_umask(173);
@@ -131,10 +133,15 @@ void usb_dc_low_level_deinit(uint8_t busid)
 #else
 void usb_dc_low_level_init(uint8_t busid)
 {
-    sysctl_reset_hw_done((volatile uint32_t *)0x9110103c, 1, 29);
-    uint32_t *hs_reg = (uint32_t *)rt_ioremap((void *)(0x91585000 + 0x9C), 0x1000);
-    *hs_reg = 0x37;
-    rt_iounmap(hs_reg);
+    uint32_t *reg;
+
+    reg = (uint32_t *)rt_ioremap((void *)0x9110103c, 4);
+    sysctl_reset_hw_done(reg, 1, 29);
+    rt_iounmap(reg);
+
+    reg = (uint32_t *)rt_ioremap((void *)0x9158509c, 4);
+    *reg = 0x37;
+    rt_iounmap(reg);
 
     rt_hw_interrupt_install(174, usb_dc_interrupt_cb, NULL, "usbd");
     rt_hw_interrupt_umask(174);
@@ -152,6 +159,6 @@ uint32_t usbd_get_dwc2_gccfg_conf(uint32_t reg_base)
 
 void usbd_dwc2_delay_ms(uint8_t ms)
 {
-    /* implement later */
+    usb_osal_msleep(ms);
 }
 #endif

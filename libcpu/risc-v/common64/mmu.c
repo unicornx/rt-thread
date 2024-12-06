@@ -150,6 +150,8 @@ void *rt_hw_mmu_map(struct rt_aspace *aspace, void *v_addr, void *p_addr,
     void *unmap_va = v_addr;
     size_t npages = size >> ARCH_PAGE_SHIFT;
 
+    if ((rt_ubase_t)p_addr >= IO_SPACE_BASE_ADDR)
+        attr |= PTE_SO;
     // TODO trying with HUGEPAGE here
     while (npages--)
     {

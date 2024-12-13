@@ -14,7 +14,7 @@ if os.getenv('RTT_CC'):
 
 if  CROSS_TOOL == 'gcc':
     PLATFORM    = 'gcc'
-    EXEC_PATH   = r'/home/yixinghua/env/rt-thread/rt-smart_v13.2.0-release_1109/bin'
+    EXEC_PATH   = r'/opt/toolchain/rt-smart_v13.2.0-release_1109/bin'
 else:
     print('Please make sure your toolchains is GNU GCC!')
     exit(0)

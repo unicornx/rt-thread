@@ -2,7 +2,6 @@
 
 #ifdef RT_USING_DFS
 #include <dfs_fs.h>
-#include <dfs_romfs.h>
 rt_weak uint8_t *cromfs_get_partition_data(uint32_t *len)
 {
     return RT_NULL;
@@ -26,9 +25,11 @@ int mnt_init(void)
 {
     rt_err_t ret;
 
-    if (dfs_mount(RT_NULL, "/", "rom", 0, &romfs_root) != 0) {
-        rt_kprintf("Dir / mount failed!\n");
-        return -1;
+    ret = mnt_cromfs();
+    if (ret != RT_EOK)
+    {
+        rt_kprintf("CromFS mount failed!\n");
+        return ret;
     }
 
     mkdir("/dev/shm", 0x777);

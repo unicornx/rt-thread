@@ -302,7 +302,7 @@ static int mpp_device_init(void)
     kd_vo_init();
     connector_device_init();
     vdss_init();
-    // dpu_init();
+    dpu_init();
     dewarp_init();
     pm_core_init();
     fft_device_init();

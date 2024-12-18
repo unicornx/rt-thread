@@ -40,11 +40,11 @@ rm $env_dir -rf
 
 #!/download cromfs tool
 #linux_x64
-wget https://download-redirect.rt-thread.org/download/tools/cromfs/cromfs-tool-x64
+wget https://download-redirect.rt-thread.org/download/tools/cromfs/cromfs-tool-x64 --no-check-certificate
 chmod 777 cromfs-tool-x64
 
 #linux_x86
-# wget https://download-redirect.rt-thread.org/download/tools/cromfs/cromfs-tool-x86
+# wget https://download-redirect.rt-thread.org/download/tools/cromfs/cromfs-tool-x86 --no-check-certificate
 # chmod 777 cromfs-tool-x86
 
 #windows

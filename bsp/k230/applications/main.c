@@ -35,7 +35,7 @@ int main(void)
         }
     }
 
-    // msh_exec(RT_SHELL_PATH, strlen(RT_SHELL_PATH)+1);
+    msh_exec(RT_SHELL_PATH, strlen(RT_SHELL_PATH)+1);
 
     return 0;
 }

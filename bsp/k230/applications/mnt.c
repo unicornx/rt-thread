@@ -39,19 +39,20 @@ int mnt_init(void)
         rt_kprintf("Dir /dev/shm mount failed!\n");
     }
 
-#ifndef RT_FASTBOOT
-    rt_kprintf("/dev/shm file system initialization done!\n");
-#endif
-
 #ifdef BSP_SD_SDIO_DEV
-#define str(s) #s
-#define xstr(s) str(s)
-    while (mmcsd_wait_cd_changed(100) != MMCSD_HOST_PLUGED);
-    if (dfs_mount("sd"xstr(BSP_SD_SDIO_DEV), "/sdcard", "elm", 0, 0) != 0) 
+    while (mmcsd_wait_cd_changed(100) != MMCSD_HOST_PLUGED)
+        ;
+
+    if (dfs_mount(BSP_SD_MNT_DEVNAME, "/sdcard", "elm", 0, 0) != 0)
 	{
         rt_kprintf("Dir /sdcard mount failed!\n");
     }
 #endif
+
+#ifndef RT_FASTBOOT
+    rt_kprintf("/dev/shm file system initialization done!\n");
+#endif
+
     return 0;
 }
 INIT_ENV_EXPORT(mnt_init);

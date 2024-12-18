@@ -11,7 +11,7 @@ if [ $1 ] && [ $1 = --gitee ]; then
     SDK_URL="https://gitee.com/RT-Thread-Mirror/sdk.git"
 fi
 
-env_dir=./.env
+env_dir=$HOME/.env
 if [ -d $env_dir ]; then
     read -p '.env directory already exists. Would you like to remove and recreate .env directory? (Y/N) ' option
     if [[ "$option" =~ [Yy*] ]]; then
@@ -29,7 +29,7 @@ if ! [ -d $env_dir ]; then
     echo 'source "$PKGS_DIR/packages/Kconfig"' >$env_dir/packages/Kconfig
     git clone $SDK_URL $env_dir/packages/sdk --depth=1
     git clone $ENV_URL $env_dir/tools/scripts --depth=1
-    echo -e 'export PATH=`python3 -m site --user-base`/bin:./.env/tools/scripts:$PATH' >$env_dir/env.sh
+    echo -e 'export PATH=`python3 -m site --user-base`/bin:$HOME/.env/tools/scripts:$PATH' >$env_dir/env.sh
 fi
 
 source $env_dir/env.sh
@@ -40,12 +40,16 @@ rm $env_dir -rf
 
 #!/download cromfs tool
 #linux_x64
-wget https://download-redirect.rt-thread.org/download/tools/cromfs/cromfs-tool-x64 --no-check-certificate
-chmod 777 cromfs-tool-x64
+if [ ! -f "cromfs-tool-x64" ];then
+    wget https://download-redirect.rt-thread.org/download/tools/cromfs/cromfs-tool-x64 --no-check-certificate
+    chmod 777 cromfs-tool-x64
+fi
 
 #linux_x86
-# wget https://download-redirect.rt-thread.org/download/tools/cromfs/cromfs-tool-x86 --no-check-certificate
-# chmod 777 cromfs-tool-x86
+# if [ ! -f "cromfs-tool-x86" ];then
+#     wget https://download-redirect.rt-thread.org/download/tools/cromfs/cromfs-tool-x86 --no-check-certificate
+#     chmod 777 cromfs-tool-x86
+# fi
 
 #windows
 # wget https://download-redirect.rt-thread.org/download/tools/cromfs/cromfs-tool.exe

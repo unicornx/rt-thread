@@ -2,6 +2,7 @@
 
 #ifdef RT_USING_DFS
 #include <dfs_fs.h>
+
 rt_weak uint8_t *cromfs_get_partition_data(uint32_t *len)
 {
     return RT_NULL;
@@ -50,7 +51,7 @@ int mnt_init(void)
 #endif
 
 #ifndef RT_FASTBOOT
-    rt_kprintf("/dev/shm file system initialization done!\n");
+    rt_kprintf("file system initialization done!\n");
 #endif
 
     return 0;

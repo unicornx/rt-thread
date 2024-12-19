@@ -33,6 +33,7 @@
 
 #define WORD_SIZE   4
 
+#define SBI_PMP_WRITE_ENABLE        9
 
 typedef enum
 {

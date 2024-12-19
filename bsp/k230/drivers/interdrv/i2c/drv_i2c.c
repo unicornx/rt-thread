@@ -17,7 +17,10 @@
 #include "drv_i2c.h"
 #include <dfs_file.h>
 #include <dfs_posix.h>
-
+#include <unistd.h>
+#include <stdio.h> /* rename() */
+#include <sys/stat.h>
+#include <sys/statfs.h> /* statfs() */
 #include "board.h"
 
 #define DRV_DEBUG

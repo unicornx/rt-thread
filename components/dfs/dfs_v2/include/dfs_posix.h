@@ -20,10 +20,6 @@
 
 #include <dfs.h>
 #include <dfs_file.h>
-#include <unistd.h>
-#include <stdio.h> /* rename() */
-#include <sys/stat.h>
-#include <sys/statfs.h> /* statfs() */
 
 #ifdef __cplusplus
 extern "C" {

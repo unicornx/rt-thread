@@ -66,6 +66,7 @@
 /* end of RT-Thread Kernel */
 #define ARCH_CPU_64BIT
 #define RT_USING_CACHE
+#define RT_CPU_CACHE_LINE_SZ 64
 #define ARCH_MM_MMU
 #define KERNEL_VADDR_START 0xFFFFFFC000220000
 #define ARCH_RISCV
@@ -161,7 +162,7 @@
 #define RT_USING_ZERO
 #define RT_USING_RANDOM
 #define RT_USING_DEVMEM
-#define RT_USING_RTC
+// #define RT_USING_RTC
 // #define RT_USING_RTC_PMU
 #define RT_USING_I2C
 #define RT_USING_I2C0
@@ -192,7 +193,7 @@
 #define RT_MMCSD_THREAD_PRIORITY 22
 #define RT_MMCSD_MAX_PARTITION 16
 #define RT_USING_PIN
-#define RT_USING_REGULATOR
+// #define RT_USING_REGULATOR
 #define RT_USING_KTIME
 /* canaan uart driver for uart1 uart2 uart4 */
 // #define RT_USING_CANAAN_UART

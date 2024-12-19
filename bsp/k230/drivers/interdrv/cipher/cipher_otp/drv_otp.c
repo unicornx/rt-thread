@@ -45,6 +45,12 @@ static struct rt_device g_otp_device = {0};
 void *otp_base_addr = RT_NULL;
 void *otp_bypass_addr = RT_NULL;
 
+static __inline void
+sbi_pmp_write_enable(int write_enable)
+{
+    (void)SBI_CALL1(SBI_PMP_WRITE_ENABLE, 0, write_enable);
+}
+
 static rt_uint32_t be2le(rt_uint32_t var)
 {
     return (((0xff000000 & var) >> 24) |

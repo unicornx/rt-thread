@@ -122,7 +122,6 @@
 #define SBI_REMOTE_SFENCE_VMA       6
 #define SBI_REMOTE_SFENCE_VMA_ASID  7
 #define SBI_SHUTDOWN                8
-#define SBI_PMP_WRITE_ENABLE        9
 
 #define SBI_CALL0(e, f)                     SBI_CALL5(e, f, 0, 0, 0, 0, 0)
 #define SBI_CALL1(e, f, p1)                 SBI_CALL5(e, f, p1, 0, 0, 0, 0)
@@ -237,12 +236,6 @@ static __inline void
 sbi_shutdown(void)
 {
     (void)SBI_CALL0(SBI_SHUTDOWN, 0);
-}
-
-static __inline void
-sbi_pmp_write_enable(int write_enable)
-{
-    (void)SBI_CALL1(SBI_PMP_WRITE_ENABLE, 0, write_enable);
 }
 
 void sbi_print_version(void);

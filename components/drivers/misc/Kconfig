@@ -35,7 +35,3 @@ if RT_USING_INPUT_CAPTURE
         int "Set input capture ringbuffer size"
         default 100
 endif
-
-config RT_USING_DEVMEM
-    bool "Using DEVMEM device drivers"
-    default n

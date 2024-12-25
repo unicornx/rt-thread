@@ -131,7 +131,8 @@ rt_err_t rt_spi_bus_attach_device(struct rt_spi_device *device,
     return rt_spi_bus_attach_device_cspin(device, name, bus_name, PIN_NONE, user_data);
 }
 
-rt_err_t rt_spi_bus_configure(struct rt_spi_device *device)
+rt_err_t rt_spi_bus_configure(struct rt_spi_device *device,
+                              struct rt_spi_configuration *cfg)
 {
     rt_err_t result = -RT_ERROR;
 
@@ -143,7 +144,7 @@ rt_err_t rt_spi_bus_configure(struct rt_spi_device *device)
             if (device->bus->owner == device)
             {
                 /* current device is using, re-configure SPI bus */
-                result = device->bus->ops->configure(device, &device->config);
+                result = device->bus->ops->configure(device, cfg);
                 if (result != RT_EOK)
                 {
                     /* configure SPI bus failed */
@@ -211,7 +212,7 @@ rt_err_t rt_spi_configure(struct rt_spi_device        *device,
     device->config.mode       = cfg->mode & RT_SPI_MODE_MASK;
     device->config.max_hz     = cfg->max_hz;
 
-    return rt_spi_bus_configure(device);
+    return rt_spi_bus_configure(device,cfg);
 }
 
 rt_err_t rt_spi_send_then_send(struct rt_spi_device *device,

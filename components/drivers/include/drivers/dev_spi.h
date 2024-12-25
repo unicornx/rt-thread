@@ -132,6 +132,9 @@ extern "C"{
 #define RT_SPI_BUS_MODE_SPI         (1<<0)
 #define RT_SPI_BUS_MODE_QSPI        (1<<1)
 
+#define RT_SPI_DEV_CTRL_CONFIG  (RT_DEVICE_CTRL_BASE(SPIBUS) + 0x01)
+#define RT_SPI_DEV_CTRL_RW      (RT_DEVICE_CTRL_BASE(SPIBUS) + 0x02)
+
 /**
  * @brief SPI message structure
  */
@@ -241,7 +244,8 @@ struct rt_qspi_message
     /* instruction stage */
     struct
     {
-        rt_uint8_t content;
+        rt_uint32_t content;
+        rt_uint8_t size;
         rt_uint8_t qspi_lines;
     } instruction;
 
@@ -376,7 +380,7 @@ rt_err_t rt_spi_bus_attach_device_cspin(struct rt_spi_device *device,
  *         For further details, refer to:
  *         https://github.com/RT-Thread/rt-thread/pull/8528
  */
-rt_err_t rt_spi_bus_configure(struct rt_spi_device *device);
+rt_err_t rt_spi_bus_configure(struct rt_spi_device *device,struct rt_spi_configuration *cfg);
 
 /**
  * @brief This function takes SPI bus.

@@ -2064,6 +2064,17 @@ static int usbh_rtl8152_connect(struct usbh_hubport *hport, uint8_t intf)
         rtl8152_class->mac[j] = (unsigned char)byte;
     }
 
+    uint32_t *reg;
+    reg = (uint32_t *)rt_ioremap((void *)0x91213300, 4);
+    uint32_t trng_data = *reg;
+    rtl8152_class->mac[0] = 0x00;
+    rtl8152_class->mac[1] = 0xe0;
+    rtl8152_class->mac[2] = 0x4c;
+    rtl8152_class->mac[3] = trng_data & 0xff;
+    rtl8152_class->mac[4] = (trng_data>>8) & 0xff;
+    rtl8152_class->mac[5] = (trng_data>>16) & 0xff;
+    rt_iounmap(reg);
+
     r8152_write_hwaddr(rtl8152_class, rtl8152_class->mac);
 
     USB_LOG_INFO("RTL8152 MAC address %02x:%02x:%02x:%02x:%02x:%02x\r\n",

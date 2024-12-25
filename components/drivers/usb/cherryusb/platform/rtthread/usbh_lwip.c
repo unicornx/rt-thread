@@ -466,7 +466,7 @@ void usbh_rtl8152_run(struct usbh_rtl8152 *rtl8152_class)
     eth_device_init(&g_rtl8152_dev, "u4");
     eth_device_linkchange(&g_rtl8152_dev, RT_TRUE);
 
-    usb_osal_thread_create("usbh_rtl8152_rx", 2048, CONFIG_USBHOST_PSC_PRIO + 1, usbh_rtl8152_rx_thread, NULL);
+    usb_osal_thread_create("usbh_rtl8152_rx", 4096, CONFIG_USBHOST_PSC_PRIO + 1, usbh_rtl8152_rx_thread, NULL);
 }
 
 void usbh_rtl8152_stop(struct usbh_rtl8152 *rtl8152_class)

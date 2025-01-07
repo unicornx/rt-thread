@@ -24,6 +24,8 @@ int main(void)
     struct statfs buffer;
     printf("RT-SMART Hello RISC-V.\n");
 
+    usbh_initialize(1, NULL);
+
     char path[64];
     strcpy(path, RT_SHELL_PATH);
     strrchr(path, '/')[0] = 0;

@@ -465,6 +465,12 @@ pid_t lwp_execve(char *filename, int debug, int argc, char **argv, char **envp)
         return -ENOMEM;
     }
 #endif
+    char *argv_last = argv[argc - 1];
+    int bg = 0;
+    if (argv_last[0] == '&' && argv_last[1] == '\0')
+    {
+        bg = 1;
+    }
 
     if ((aux = argscopy(lwp, argc, argv, envp)) == RT_NULL)
     {
@@ -479,7 +485,10 @@ pid_t lwp_execve(char *filename, int debug, int argc, char **argv, char **envp)
         rt_thread_t thread = RT_NULL;
         rt_uint32_t priority = 25, tick = 200;
 
-        lwp_execve_setup_stdio(lwp);
+        if (bg == 0)
+        {
+            lwp_execve_setup_stdio(lwp);
+        }
 
         /* obtain the base name */
         thread_name = strrchr(filename, '/');

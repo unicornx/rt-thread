@@ -42,6 +42,8 @@
 #endif
 #define DBG_COLOR
 
+#ifdef RT_USING_HARDLOCK
+
 struct device_hardlock
 {
     volatile void *hw_base;
@@ -110,3 +112,22 @@ int rt_hw_hardlock_init(void)
     return 0;
 }
 INIT_BOARD_EXPORT(rt_hw_hardlock_init);
+
+#else
+
+int kd_hardlock_lock(hardlock_type num)
+{
+    return 0;
+}
+
+void kd_hardlock_unlock(hardlock_type num)
+{
+
+}
+
+int kd_request_lock(hardlock_type num)
+{
+    return num;
+}
+
+#endif

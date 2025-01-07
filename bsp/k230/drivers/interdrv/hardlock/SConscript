@@ -6,7 +6,7 @@ cwd     = GetCurrentDir()
 src     = Glob('*.c') + Glob('*.S')
 CPPPATH = [cwd]
 
-group = DefineGroup('HARDLOCK', src, depend = ['RT_USING_HARDLOCK'], CPPPATH = CPPPATH)
+group = DefineGroup('HARDLOCK', src, depend = [], CPPPATH = CPPPATH)
 
 objs = [group]
 

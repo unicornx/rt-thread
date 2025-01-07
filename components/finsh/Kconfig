@@ -81,4 +81,8 @@ if RT_USING_MSH
         bool "command option completion enable"
         default y
 
+    config MSH_WAIT_LWP_FINISH
+        int "msh creates a user state process and then waits for it to die due to blocking"
+        default n
+
 endif

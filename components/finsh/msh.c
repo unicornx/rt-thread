@@ -529,7 +529,22 @@ int _msh_exec_lwp(int debug, char *cmd, rt_size_t length)
 
     /* found program */
 found_program:
+#ifdef MSH_WAIT_LWP_FINISH
+#include "lwp_pid.h"
+    int bg = 0;
+    char argv_last[FINSH_CMD_SIZE]={0};
+    rt_strcpy(argv_last, argv[argc - 1]);
+#endif
     ret = exec(pg_name, debug, argc, argv);
+#ifdef MSH_WAIT_LWP_FINISH
+    if (argv_last[0] == '&' && argv_last[1] == '\0')
+    {
+        bg = 1;
+    }
+    while((RT_NULL != lwp_from_pid_raw_locked((pid_t)(ret))) && !bg) {
+        rt_thread_mdelay(100);
+    }
+#endif
     rt_free(pg_name);
 
     return ret;

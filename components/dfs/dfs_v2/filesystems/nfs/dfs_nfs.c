@@ -687,8 +687,10 @@ static ssize_t _nfs_write(struct dfs_vnode *vnode, const void *buf, size_t count
             /* update current position */
             *pos = fd->offset;
             /* update file size */
-            if (fd->size < fd->offset) fd->size = fd->offset;
-            vnode->size = fd->size;
+            if (fd->size < fd->offset)
+                fd->size = fd->offset;
+            if (vnode->size < fd->size)
+                vnode->size = fd->size;
         }
         xdr_free((xdrproc_t)xdr_WRITE3res, (char *)&res);
     } while (count > 0);

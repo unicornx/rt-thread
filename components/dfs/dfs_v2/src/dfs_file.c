@@ -194,6 +194,7 @@ void dfs_file_init(struct dfs_file *file)
         file->magic = DFS_FD_MAGIC;
         rt_mutex_init(&file->pos_lock, "fpos", RT_IPC_FLAG_PRIO);
         rt_atomic_store(&(file->ref_count), 1);
+        rt_atomic_store(&(file->fd_ref_count), 1);
     }
 }
 
@@ -232,6 +233,15 @@ static void dfs_file_unref(struct dfs_file *file)
                     rt_free(file->vnode);
                     file->vnode = RT_NULL;
                 }
+            }
+            if (file->fd_ref_count == 0)
+            {
+                rt_mutex_detach(&file->pos_lock);
+                if (file->mmap_context)
+                {
+                    rt_free(file->mmap_context);
+                }
+                rt_free(file);
             }
 
             LOG_I("release a file: %p", file);
@@ -684,6 +694,7 @@ int dfs_file_close(struct dfs_file *file)
                 if (file->vnode->aspace)
                 {
                     dfs_aspace_flush(file->vnode->aspace);
+                    dfs_aspace_clean(file->vnode->aspace);
                 }
 #endif
                 ret = file->fops->close(file);

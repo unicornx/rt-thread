@@ -261,6 +261,8 @@ static rt_futex_t _sftx_create(struct shared_futex_key *key, struct rt_lwp *lwp)
                     futex->mutex = RT_NULL;
                     rt_list_init(&(futex->waiting_thread));
                     futex->custom_obj = obj;
+                    // todo fix multithread share futex
+                    lwp_user_object_add(lwp, obj);
                 }
             }
         }

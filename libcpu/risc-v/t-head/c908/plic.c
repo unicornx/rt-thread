@@ -21,6 +21,7 @@
 #include "ioremap.h"
 
 static void *plic_regs = RT_NULL;
+static void *priority_base;
 extern struct rt_irq_desc isr_table[];
 
 struct plic_handler
@@ -32,7 +33,6 @@ struct plic_handler
 
 rt_inline void plic_toggle(struct plic_handler *handler, int hwirq, int enable);
 struct plic_handler plic_handlers[C908_NR_CPUS];
-static void *plic_irq_priority[INTERRUPTS_MAX] = {RT_NULL};
 
 rt_inline void plic_irq_toggle(int hwirq, int enable)
 {
@@ -40,14 +40,7 @@ rt_inline void plic_irq_toggle(int hwirq, int enable)
     void *priority_addr;
 
     /* set priority of interrupt, interrupt 0 is zero. */
-    priority_addr = (void *)((rt_size_t)plic_regs + PRIORITY_BASE + hwirq * PRIORITY_PER_ID);
-#ifdef RT_USING_SMART
-    if (plic_irq_priority[hwirq] == RT_NULL)
-    {
-        plic_irq_priority[hwirq] = (void *)rt_ioremap(priority_addr, 0x1000);
-    }
-    priority_addr = plic_irq_priority[hwirq];
-#endif
+    priority_addr = (void *)((rt_size_t)priority_base + hwirq * PRIORITY_PER_ID);
     writel(enable, priority_addr);
     struct plic_handler *handler = &plic_handlers[cpu];
 
@@ -203,8 +196,8 @@ void plic_init(void)
         handler->hart_base = (void *)((rt_size_t)plic_regs + CONTEXT_BASE + i * CONTEXT_PER_HART);
         handler->enable_base = (void *)((rt_size_t)plic_regs + ENABLE_BASE + i * ENABLE_PER_HART);
 #ifdef RT_USING_SMART
-        handler->hart_base = (void *)rt_ioremap(handler->hart_base, 0x1000);
-        handler->enable_base = (void *)rt_ioremap(handler->enable_base, 0x1000);
+        handler->hart_base = (void *)rt_ioremap(handler->hart_base, CONTEXT_PER_HART);
+        handler->enable_base = (void *)rt_ioremap(handler->enable_base, ENABLE_PER_HART);
 #endif
 done:
         /* priority must be > threshold to trigger an interrupt */
@@ -214,6 +207,11 @@ done:
             plic_toggle(handler, hwirq, 0);
         }
     }
+
+    priority_base = (void *)((rt_size_t)plic_regs + PRIORITY_BASE);
+#ifdef RT_USING_SMART
+    priority_base = (void *)rt_ioremap(priority_base, INTERRUPTS_MAX * PRIORITY_PER_ID);
+#endif
 
     /* Enable supervisor external interrupts. */
     set_csr(sie, SIE_SEIE);

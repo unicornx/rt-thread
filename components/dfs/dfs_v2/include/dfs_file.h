@@ -89,6 +89,7 @@ struct dfs_file
 
     uint32_t flags;
     rt_atomic_t ref_count;
+    rt_atomic_t fd_ref_count;
 
     off_t fpos;
     struct rt_mutex pos_lock;

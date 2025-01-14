@@ -518,6 +518,8 @@ void *lwp_mmap2(struct rt_lwp *lwp, void *addr, size_t length, int prot,
 
     if (fd == -1)
     {
+        int fixme = 0; /* bug in user c/cpp lib? */
+
         /**
          * todo: add threshold
          */
@@ -528,6 +530,12 @@ void *lwp_mmap2(struct rt_lwp *lwp, void *addr, size_t length, int prot,
         k_flags = lwp_user_mm_flag_to_kernel(flags) | MMF_MAP_PRIVATE;
         k_attr = lwp_user_mm_attr_to_kernel(prot);
 
+        if (length == 0x1b0)
+        {
+            fixme = 1;
+            length += ARCH_PAGE_SIZE;
+        }
+
         uspace = lwp->aspace;
         length = RT_ALIGN(length, ARCH_PAGE_SIZE);
         mem_obj = _get_mmap_obj(lwp);
@@ -535,6 +543,10 @@ void *lwp_mmap2(struct rt_lwp *lwp, void *addr, size_t length, int prot,
         rc = rt_aspace_map(uspace, &addr, length, k_attr, k_flags, mem_obj, k_offset);
         if (rc == RT_EOK)
         {
+            if (fixme)
+            {
+                addr += ARCH_PAGE_SIZE;
+            }
             ret = addr;
         }
         else

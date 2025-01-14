@@ -45,6 +45,11 @@ static int _read_fault(rt_varea_t varea, void *pa, struct rt_aspace_fault_msg *m
         RT_ASSERT(!(varea->flag & MMF_PREFETCH));
         err = _fetch_page(varea, msg);
     }
+    else if (msg->fault_type == MM_FAULT_TYPE_RWX_PERM)
+    {
+        /* FIXME: https://github.com/RT-Thread/rt-thread/issues/9854 */
+        err = MM_FAULT_FIXABLE_TRUE;
+    }
     else
     {
         /* signal a fault to user? */
@@ -101,6 +106,12 @@ static int _exec_fault(rt_varea_t varea, void *pa, struct rt_aspace_fault_msg *m
         RT_ASSERT(!(varea->flag & MMF_PREFETCH));
         err = _fetch_page(varea, msg);
     }
+    else if (msg->fault_type == MM_FAULT_TYPE_RWX_PERM)
+    {
+        /* FIXME: https://github.com/RT-Thread/rt-thread/issues/9854 */
+        err = MM_FAULT_FIXABLE_TRUE;
+    }
+
     return err;
 }
 

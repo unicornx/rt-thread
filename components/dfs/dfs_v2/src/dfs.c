@@ -223,6 +223,7 @@ int fdt_fd_new(struct dfs_fdtable *fdt)
         {
             file->magic = DFS_FD_MAGIC;
             file->ref_count = 1;
+            file->fd_ref_count = 1;
             rt_mutex_init(&file->pos_lock, "fpos", RT_IPC_FLAG_PRIO);
             fdt->fds[idx] = file;
 
@@ -253,20 +254,27 @@ void fdt_fd_release(struct dfs_fdtable *fdt, int fd)
 
         file = fdt_get_file(fdt, fd);
 
-        if (file && file->ref_count == 1)
+        if (file)
         {
-            rt_mutex_detach(&file->pos_lock);
-
-            if (file->mmap_context)
+            if (file->fd_ref_count)
             {
-                rt_free(file->mmap_context);
+                rt_atomic_sub(&(file->fd_ref_count), 1);
             }
+            if (file->ref_count == 1)
+            {
+                rt_mutex_detach(&file->pos_lock);
 
-            rt_free(file);
-        }
-        else
-        {
-            rt_atomic_sub(&(file->ref_count), 1);
+                if (file->mmap_context)
+                {
+                    rt_free(file->mmap_context);
+                }
+
+                rt_free(file);
+            }
+            else
+            {
+                rt_atomic_sub(&(file->ref_count), 1);
+            }
         }
 
         fdt->fds[fd] = RT_NULL;
@@ -334,6 +342,7 @@ int fdt_fd_associate_file(struct dfs_fdtable *fdt, int fd, struct dfs_file *file
 
     /* inc ref_count */
     rt_atomic_add(&(file->ref_count), 1);
+    rt_atomic_add(&(file->fd_ref_count), 1);
     fdt->fds[fd] = file;
     retfd = fd;
 
@@ -552,6 +561,7 @@ int dfs_dup(int oldfd, int startfd)
 
         /* inc ref_count */
         rt_atomic_add(&(fdt->fds[newfd]->ref_count), 1);
+        rt_atomic_add(&(fdt->fds[newfd]->fd_ref_count), 1);
     }
 exit:
     dfs_file_unlock();
@@ -600,6 +610,7 @@ int dfs_dup_to(int oldfd, struct dfs_fdtable *fdtab)
 
         /* inc ref_count */
         rt_atomic_add(&(fdtab->fds[newfd]->ref_count), 1);
+        rt_atomic_add(&(fdtab->fds[newfd]->fd_ref_count), 1);
     }
 exit:
     dfs_file_unlock();
@@ -736,6 +747,7 @@ rt_err_t sys_dup2(int oldfd, int newfd)
     fdt->fds[newfd] = fdt->fds[oldfd];
     /* inc ref_count */
     rt_atomic_add(&(fdt->fds[newfd]->ref_count), 1);
+    rt_atomic_add(&(fdt->fds[newfd]->fd_ref_count), 1);
     retfd = newfd;
 exit:
     dfs_file_unlock();

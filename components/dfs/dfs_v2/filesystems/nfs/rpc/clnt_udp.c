@@ -407,4 +407,5 @@ static void clntudp_destroy(CLIENT *cl)
     XDR_DESTROY(&(cu->cu_outxdrs));
     rt_free(cu);
     rt_free(cl);
+    rt_mutex_detach(&cu->mutex);
 }

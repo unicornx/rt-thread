@@ -452,6 +452,7 @@ static int nfs_mount(struct dfs_mnt *mnt, unsigned long rwflag, const void *data
 
     nfs = (nfs_filesystem *)rt_malloc(sizeof(nfs_filesystem));
     memset(nfs, 0, sizeof(nfs_filesystem));
+    memset(&res, '\0', sizeof(mountres3));
 
     if (nfs_parse_host_export((const char *)data, nfs->host, HOST_LENGTH,
                               nfs->export, EXPORT_PATH_LENGTH) < 0)
@@ -467,7 +468,6 @@ static int nfs_mount(struct dfs_mnt *mnt, unsigned long rwflag, const void *data
         goto __return;
     }
 
-    memset(&res, '\0', sizeof(mountres3));
     if (mountproc3_mnt_3((char *)nfs->export, &res, nfs->mount_client) != RPC_SUCCESS)
     {
         rt_kprintf("nfs mount failed\n");
@@ -486,6 +486,8 @@ static int nfs_mount(struct dfs_mnt *mnt, unsigned long rwflag, const void *data
     }
     copy_handle(&nfs->root_handle, (nfs_fh3 *)&res.mountres3_u.mountinfo.fhandle);
     copy_handle(&nfs->current_handle, &nfs->root_handle);
+    xdr_free((xdrproc_t)xdr_nfs_fh3, (char *)&res.mountres3_u.mountinfo.fhandle);
+    xdr_free((xdrproc_t)xdr_nfs_fh3, (char *)&res.mountres3_u.mountinfo.auth_flavors);
 
     nfs->nfs_client->cl_auth = authnone_create();
     mnt->data = nfs;
@@ -508,6 +510,8 @@ __return:
             clnt_destroy(nfs->nfs_client);
         }
         rt_free(nfs);
+        xdr_free((xdrproc_t)xdr_nfs_fh3, (char *)&res.mountres3_u.mountinfo.fhandle);
+        xdr_free((xdrproc_t)xdr_nfs_fh3, (char *)&res.mountres3_u.mountinfo.auth_flavors);
     }
 
     return -1;
@@ -552,6 +556,9 @@ static int nfs_unmount(struct dfs_mnt *mnt)
         clnt_destroy(nfs->mount_client);
         nfs->mount_client = NULL;
     }
+
+    xdr_free((xdrproc_t)xdr_nfs_fh3, (char *)&nfs->root_handle);
+    xdr_free((xdrproc_t)xdr_nfs_fh3, (char *)&nfs->current_handle);
 
     rt_free(nfs);
     mnt->data = NULL;

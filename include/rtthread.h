@@ -703,6 +703,14 @@ rt_err_t  rt_device_control(rt_device_t dev, int cmd, void *arg);
 /**@}*/
 #endif /* RT_USING_DEVICE */
 
+#ifdef RT_USING_PROC
+rt_proc_entry_t rt_proc_entry_find(const char *name);
+rt_err_t rt_proc_entry_register(rt_proc_entry_t entry, const char *name);
+rt_err_t rt_proc_entry_unregister(rt_proc_entry_t entry);
+rt_proc_entry_t rt_proc_entry_create(int type, int attach_size);
+void rt_proc_entry_destory(rt_proc_entry_t entry);
+#endif
+
 /*
  * interrupt service
  */

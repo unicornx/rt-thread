@@ -81,6 +81,9 @@ enum rt_object_info_type
 #ifdef RT_USING_HEAP
     RT_Object_Info_Custom,                             /**< The object is a custom object */
 #endif
+#ifdef RT_USING_DFS_PROCFS
+    RT_Object_info_Proc,
+#endif
     RT_Object_Info_Unknown,                            /**< The object is unknown. */
 };
 
@@ -141,6 +144,9 @@ static struct rt_object_information _object_container[RT_Object_Info_Unknown] =
 #endif
 #ifdef RT_USING_HEAP
     {RT_Object_Class_Custom, _OBJ_CONTAINER_LIST_INIT(RT_Object_Info_Custom), sizeof(struct rt_custom_object), RT_SPINLOCK_INIT},
+#endif
+#ifdef RT_USING_PROC
+    {RT_Object_Class_Proc, _OBJ_CONTAINER_LIST_INIT(RT_Object_info_Proc), sizeof(struct rt_proc_entry), RT_SPINLOCK_INIT},
 #endif
 };
 

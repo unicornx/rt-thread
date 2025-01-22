@@ -344,7 +344,8 @@ enum rt_object_class_type
     RT_Object_Class_ProcessGroup  = 0x0e,      /**< The object is a process group */
     RT_Object_Class_Session       = 0x0f,      /**< The object is a session */
     RT_Object_Class_Custom        = 0x10,      /**< The object is a custom object */
-    RT_Object_Class_Unknown       = 0x11,      /**< The object is unknown. */
+    RT_Object_Class_Proc          = 0x11,      /**< The object is a proc object */
+    RT_Object_Class_Unknown       = 0x12,      /**< The object is unknown. */
     RT_Object_Class_Static        = 0x80       /**< The object is a static object. */
 };
 
@@ -1429,6 +1430,31 @@ struct rt_device_notify
     void (*notify)(rt_device_t dev);
     struct rt_device *dev;
 };
+
+#ifdef RT_USING_PROC
+enum rt_proc_class_type
+{
+    RT_Proc_Class_CpuInfo = 0,
+    RT_Proc_Class_MemInfo,
+    RT_Proc_Class_DeviceInfo,
+    RT_Proc_Class_Unknow
+};
+
+struct rt_proc_entry
+{
+    struct rt_object            parent;                   /**< inherit from rt_object */
+    rt_uint16_t                 flag;
+    rt_uint16_t                 open_flag;
+    rt_uint8_t                  ref_count;
+    enum rt_proc_class_type     type;                     /**< device type */
+#if defined(RT_USING_POSIX_FS)
+    const struct dfs_file_ops   *fops;
+#endif
+    void *data;
+};
+
+typedef struct rt_proc_entry *rt_proc_entry_t;
+#endif
 
 #ifdef RT_USING_SMART
 struct rt_channel

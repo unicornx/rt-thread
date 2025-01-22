@@ -143,7 +143,7 @@ int dfs_mount(const char *device_name,
         {
             DLOG(msg, "dfs", "mnt", DLOG_MSG, "mnt_parent = dfs_mnt_lookup(%s)", fullpath);
             mnt_parent = dfs_mnt_lookup(fullpath);
-            if ((!mnt_parent && (strcmp(fullpath, "/") == 0 || strcmp(fullpath, "/dev") == 0))
+            if ((!mnt_parent && (strcmp(fullpath, "/") == 0 || strcmp(fullpath, "/dev") == 0) || (strcmp(fullpath, "/proc") == 0))
                 || (mnt_parent && strcmp(fullpath, "/") == 0 && strcmp(mnt_parent->fullpath, fullpath) != 0))
             {
                 LOG_D("no mnt found @ mount point %s, should be root.", fullpath);

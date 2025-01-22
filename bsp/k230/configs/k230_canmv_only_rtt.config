@@ -130,6 +130,10 @@
 #define RT_USING_DFS_TMPFS
 #define RT_USING_PAGECACHE
 
+/* Proc Object*/
+#define RT_USING_PROC
+#define RT_USING_DFS_PROCFS
+
 /* page cache config */
 
 #define RT_PAGECACHE_COUNT 4096

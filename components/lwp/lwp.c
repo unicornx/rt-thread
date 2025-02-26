@@ -272,7 +272,7 @@ void lwp_cleanup(struct rt_thread *tid)
     return;
 }
 
-static void lwp_execve_setup_stdio(struct rt_lwp *lwp)
+static void lwp_execve_setup_stdio(struct rt_lwp *lwp, int bg)
 {
     struct dfs_fdtable *lwp_fdt;
     struct dfs_file *cons_file;
@@ -281,7 +281,14 @@ static void lwp_execve_setup_stdio(struct rt_lwp *lwp)
     lwp_fdt = &lwp->fdt;
 
     /* open console */
-    cons_fd = open("/dev/console", O_RDWR);
+    if (bg == 1)
+    {
+        cons_fd = open("/dev/null", O_RDWR);
+    }
+    else
+    {
+        cons_fd = open("/dev/console", O_RDWR);
+    }
     if (cons_fd < 0)
     {
         LOG_E("%s: Cannot open console tty", __func__);
@@ -470,6 +477,7 @@ pid_t lwp_execve(char *filename, int debug, int argc, char **argv, char **envp)
     if (argv_last[0] == '&' && argv_last[1] == '\0')
     {
         bg = 1;
+        argc--;
     }
 
     if ((aux = argscopy(lwp, argc, argv, envp)) == RT_NULL)
@@ -485,10 +493,7 @@ pid_t lwp_execve(char *filename, int debug, int argc, char **argv, char **envp)
         rt_thread_t thread = RT_NULL;
         rt_uint32_t priority = 25, tick = 200;
 
-        if (bg == 0)
-        {
-            lwp_execve_setup_stdio(lwp);
-        }
+        lwp_execve_setup_stdio(lwp, bg);
 
         /* obtain the base name */
         thread_name = strrchr(filename, '/');

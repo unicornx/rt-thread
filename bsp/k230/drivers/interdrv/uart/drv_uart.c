@@ -312,12 +312,16 @@ static void rt_hw_uart_isr(int irq, void *param)
     }
     else if (lsr & (UART_LSR_DR | UART_LSR_BI))
     {
-    #ifdef RT_USING_SERIAL_V2
         struct rt_serial_rx_fifo *rx_fifo;
-        uint8_t data;
-
         rx_fifo = (struct rt_serial_rx_fifo *)serial->serial_rx;
-        RT_ASSERT(rx_fifo != RT_NULL);
+
+        if (rx_fifo == NULL)
+        {
+            readb((void*)(uart_base + UART_RBR));
+            return;
+        }
+    #ifdef RT_USING_SERIAL_V2
+        uint8_t data;
 
         do {
             data = readb((void*)(uart_base + UART_RBR));

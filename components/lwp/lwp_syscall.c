@@ -116,6 +116,7 @@ void lwp_cleanup(struct rt_thread *tid);
 
 #ifdef ARCH_MM_MMU
     #define ALLOC_KERNEL_STACK_SIZE 5120
+    #define KMEM_MAX_SIZE (64 * 1024)
 
     static void *kmem_get(size_t size)
     {
@@ -386,40 +387,55 @@ ssize_t sys_read(int fd, void *buf, size_t nbyte)
 #ifdef ARCH_MM_MMU
     void *kmem = RT_NULL;
     ssize_t ret = -1;
+    ssize_t size = 0, rd_byte;
 
     if (!nbyte)
     {
         return -EINVAL;
     }
 
-    if (!lwp_user_accessable((void *)buf, nbyte))
+    if (!lwp_user_accessable(buf, nbyte))
     {
         return -EFAULT;
     }
 
-    kmem = kmem_get(nbyte);
+    kmem = kmem_get(nbyte > KMEM_MAX_SIZE ? KMEM_MAX_SIZE : nbyte);
     if (!kmem)
     {
         return -ENOMEM;
     }
 
-    ret = read(fd, kmem, nbyte);
-    if (ret > 0)
+    while (nbyte)
     {
-        if (ret != lwp_put_to_user(buf, kmem, ret))
-            return -EFAULT;
-    }
-
-    if (ret < 0)
-    {
-        ret = GET_ERRNO();
+        rd_byte = nbyte > KMEM_MAX_SIZE ? KMEM_MAX_SIZE : nbyte;
+        ret = read(fd, kmem, rd_byte);
+        if (ret > 0)
+        {
+            if (ret != lwp_put_to_user(buf, kmem, ret))
+            {
+                ret = -EFAULT;
+                break;
+            }
+            buf += ret;
+            size += ret;
+            nbyte -= ret;
+            if (ret == rd_byte)
+            {
+                continue;
+            }
+        }
+        else if (ret < 0)
+        {
+            ret = GET_ERRNO();
+        }
+        break;
     }
 
     kmem_put(kmem);
 
-    return ret;
+    return ret < 0 ? ret : size;
 #else
-    if (!lwp_user_accessable((void *)buf, nbyte))
+    if (!lwp_user_accessable(buf, nbyte))
     {
         return -EFAULT;
     }
@@ -434,32 +450,53 @@ ssize_t sys_write(int fd, const void *buf, size_t nbyte)
 #ifdef ARCH_MM_MMU
     void *kmem = RT_NULL;
     ssize_t ret = -1;
+    ssize_t size = 0, wr_byte;
 
-    if (nbyte)
+    if (!nbyte)
     {
-        if (!lwp_user_accessable((void *)buf, nbyte))
-        {
-            return -EFAULT;
-        }
-
-        kmem = kmem_get(nbyte);
-        if (!kmem)
-        {
-            return -ENOMEM;
-        }
-
-        lwp_get_from_user(kmem, (void *)buf, nbyte);
+        return -EINVAL;
     }
 
-    ret = write(fd, kmem, nbyte);
-    if (ret < 0)
+    if (!lwp_user_accessable((void *)buf, nbyte))
     {
-        ret = GET_ERRNO();
+        return -EFAULT;
+    }
+
+    kmem = kmem_get(nbyte > KMEM_MAX_SIZE ? KMEM_MAX_SIZE : nbyte);
+    if (!kmem)
+    {
+        return -ENOMEM;
+    }
+
+    while (nbyte)
+    {
+        wr_byte = nbyte > KMEM_MAX_SIZE ? KMEM_MAX_SIZE : nbyte;
+        if (wr_byte != lwp_get_from_user(kmem, (void *)buf, wr_byte))
+        {
+            ret = -EFAULT;
+            break;
+        }
+        ret = write(fd, kmem, wr_byte);
+        if (ret > 0)
+        {
+            buf += ret;
+            size += ret;
+            nbyte -= ret;
+            if (ret == wr_byte)
+            {
+                continue;
+            }
+        }
+        else if (ret < 0)
+        {
+            ret = GET_ERRNO();
+        }
+        break;
     }
 
     kmem_put(kmem);
 
-    return ret;
+    return ret < 0 ? ret : size;
 #else
     if (!lwp_user_accessable((void *)buf, nbyte))
     {

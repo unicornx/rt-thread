@@ -49,8 +49,8 @@ if PLATFORM == 'gcc':
     LPATH   = ''
 
     if BUILD == 'debug':
-        CFLAGS += ' -O0 -g -gdwarf-2'
-        AFLAGS += ' -g -gdwarf-2'
+        CFLAGS += ' -O0 -gdwarf-2'
+        AFLAGS += ' -gdwarf-2'
     else:
         CFLAGS += ' -O2 -g -gdwarf-2'
     CFLAGS += ' ' +  os.getenv('KCFLAGS', '-DDBGLV=0')

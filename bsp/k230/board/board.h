@@ -16,13 +16,13 @@
 extern unsigned int __sram_size;
 extern unsigned int __sram_base;
 extern unsigned int __sram_end;
-#define RAM_END     (rt_size_t)((void *)&__sram_end)
+#define RAM_END 0xffffffc00ffff000
 
 extern unsigned int __bss_start;
 extern unsigned int __bss_end;
 
 #define RT_HW_HEAP_BEGIN    ((void *)&__bss_end)
-#define RT_HW_HEAP_END      ((void *)(((rt_size_t)RT_HW_HEAP_BEGIN) + 32 * 1024 * 1024))
+#define RT_HW_HEAP_END ((void *)(((rt_size_t)RT_HW_HEAP_BEGIN) + 0x2000000 ))
 
 #define RT_HW_PAGE_START    ((void *)((rt_size_t)RT_HW_HEAP_END + sizeof(rt_size_t)))
 #define RT_HW_PAGE_END      ((void *)(RAM_END))

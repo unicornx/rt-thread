@@ -27,7 +27,7 @@
 #include "page.h"
 
 /* respect to boot loader, must be 0xFFFFFFC000200000 */
-RT_STATIC_ASSERT(kmem_region, KERNEL_VADDR_START == 0xFFFFFFC000220000);
+RT_STATIC_ASSERT(kmem_region, KERNEL_VADDR_START == 0xffffffc000020000);
 
 rt_region_t init_page_region = {(rt_size_t)RT_HW_PAGE_START, (rt_size_t)RT_HW_PAGE_END};
 
@@ -61,8 +61,8 @@ void init_bss(void)
 }
 
 #define MEM_RESVERD_SIZE    0x1000      /*隔离区*/
-#define MEM_IPCM_BASE 0x100000
-#define MEM_IPCM_SIZE 0xff000
+#define MEM_IPCM_BASE 0x0
+#define MEM_IPCM_SIZE 0
 
 
 void init_ipcm_mem(void)

@@ -1,0 +1,47 @@
+menu "Kernel Testcase"
+
+config UTEST_MMU_TC
+    bool "MMU test"
+    default n
+
+config UTEST_ADC
+    bool "ADC test"
+    default n
+
+config RT_USING_GPIO
+    bool "GPIO test"
+    default n
+
+config RT_USING_SPI
+    bool "SPI test"
+    default n
+
+config UTEST_OTP
+    bool "OTP test"
+    default n
+
+config UTEST_WDT
+    bool "WatchDog test"
+    default n
+    
+config UTEST_TS
+    bool "TS test"
+    default n
+
+config UTEST_GPIO
+    bool "GPIO test"
+    default n
+
+config UTEST_PWM
+    bool "PWM test"
+    default n
+
+config UTEST_HWTIMER
+    bool "hwtimer test"
+    default n
+
+config UTEST_RTC
+    bool "rtc test"
+    default n
+
+endmenu

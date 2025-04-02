@@ -50,7 +50,9 @@ int mnt_init(void)
     }
 #endif
 
+#ifndef RT_FASTBOOT
     rt_kprintf("file system initialization done!\n");
+#endif
 
     return 0;
 }

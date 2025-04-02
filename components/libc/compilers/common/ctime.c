@@ -1212,9 +1212,9 @@ int timer_settime(timer_t timerid, int flags, const struct itimerspec *value,
 
     switch (timer->clockid)
     {
-#ifdef RT_USING_RTC
         case CLOCK_REALTIME:
         case CLOCK_REALTIME_ALARM:
+#ifdef RT_USING_RTC
             if (flags & TIMER_ABSTIME)
                 err = _control_rtc(RT_DEVICE_CTRL_RTC_GET_TIMESPEC, &ts);
             break;

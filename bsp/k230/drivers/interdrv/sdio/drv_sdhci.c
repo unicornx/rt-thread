@@ -20,6 +20,7 @@
 #include <string.h>
 #include <ioremap.h>
 #include <cache.h>
+#include <mm_aspace.h>
 
 #ifdef RT_USING_SDIO
 
@@ -356,7 +357,7 @@ static void sdhci_send_command(struct sdhci_host* sdhci_host, struct sdhci_comma
             start_addr = (rt_ubase_t)((uint8_t*)sdhci_data->txData);
         rt_hw_cpu_dcache_clean((void*)start_addr, sdhci_data->blockSize * sdhci_data->blockCount);
         command->flags2 |= sdhci_enable_dma_flag;
-        dma_addr = rt_kmem_v2p((void*)start_addr);
+        dma_addr = (rt_ubase_t) rt_kmem_v2p((void*)start_addr);
         sdhci_writel(sdhci_host, dma_addr, SDHCI_DMA_ADDRESS);
 #endif
         sdhci_writew(sdhci_host, SDHCI_MAKE_BLKSZ(7, sdhci_data->blockSize), SDHCI_BLOCK_SIZE);
@@ -678,7 +679,7 @@ static void kd_mmc_request(struct rt_mmcsd_host* host, struct rt_mmcsd_req* req)
             sdhci_data.rxData = rt_malloc_align(pad ? pad : sz, CACHE_LINESIZE);
         } else if (((uint64_t)(sdhci_data.txData) & (CACHE_LINESIZE - 1)) || pad) {
             sdhci_data.txData = rt_malloc_align(pad ? pad : sz, CACHE_LINESIZE);
-            rt_memcpy(sdhci_data.txData, data->buf, sz);
+            rt_memcpy((void *)sdhci_data.txData, data->buf, sz);
         }
 #endif
         mmcsd->sdhci_data = &sdhci_data;
@@ -691,7 +692,7 @@ static void kd_mmc_request(struct rt_mmcsd_host* host, struct rt_mmcsd_req* req)
         rt_memcpy(data->buf, sdhci_data.rxData, sdhci_data.blockSize * sdhci_data.blockCount);
         rt_free_align(sdhci_data.rxData);
     } else if (data && sdhci_data.txData && sdhci_data.txData != data->buf) {
-        rt_free_align(sdhci_data.txData);
+        rt_free_align((void *)sdhci_data.txData);
     }
 #endif
     if (error == -1) {

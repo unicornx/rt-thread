@@ -19,6 +19,8 @@
 
 #include <sbi.h>
 
+#include "sysctl_boot.h"
+
 #ifdef RT_USING_SMART
 #include <mmu.h>
 #include "page.h"
@@ -113,7 +115,8 @@ void rt_hw_board_init(void)
 
 void rt_hw_cpu_reset(void)
 {
-    sbi_shutdown();
+    // sbi_shutdown();
+    sysctl_boot_reset_soc();
     while(1);
 }
 MSH_CMD_EXPORT_ALIAS(rt_hw_cpu_reset, reboot, reset machine);

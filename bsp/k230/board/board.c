@@ -18,8 +18,9 @@
 #include "drv_uart.h"
 
 #include <sbi.h>
-
+#include "ioremap.h"
 #include "sysctl_boot.h"
+#include <riscv_mmu.h>
 
 #ifdef RT_USING_SMART
 #include <mmu.h>
@@ -59,6 +60,28 @@ void init_bss(void)
     }
 }
 
+#define MEM_RESVERD_SIZE    0x1000      /*隔离区*/
+#define MEM_IPCM_BASE 0x0
+#define MEM_IPCM_SIZE 0
+
+
+void init_ipcm_mem(void)
+{
+    rt_uint32_t *dst;
+    int i = 0;
+    dst = rt_ioremap((void *)(MEM_IPCM_BASE + MEM_IPCM_SIZE - MEM_RESVERD_SIZE - MEM_RESVERD_SIZE), MEM_RESVERD_SIZE);
+    if(dst == RT_NULL) {
+        rt_kprintf("ipcm ioremap error\n");
+    }
+    rt_memset((void *)dst, 0, MEM_RESVERD_SIZE);
+    for(i = 0; i < (0x1000 / 4); i++) {
+        if(dst[i] != 0) {
+            rt_kprintf("memest error addr:%p value:%d\n", &dst[i], dst[i]);
+        }
+    }
+    rt_iounmap((void *)dst);
+}
+
 static void __rt_assert_handler(const char *ex_string, const char *func, rt_size_t line)
 {
     rt_kprintf("(%s) assertion failed at function:%s, line number:%d \n", ex_string, func, line);
@@ -95,6 +118,11 @@ void rt_hw_board_init(void)
     /* initialize memory system */
     rt_system_heap_init(RT_HW_HEAP_BEGIN, RT_HW_HEAP_END);
 #endif
+
+#if  MEM_IPCM_SIZE >  MEM_RESVERD_SIZE
+    init_ipcm_mem();
+#endif
+
     /* initalize interrupt */
     rt_hw_interrupt_init();
 
@@ -106,6 +134,12 @@ void rt_hw_board_init(void)
 #ifdef RT_USING_CONSOLE
     /* set console device */
     rt_console_set_device(RT_CONSOLE_DEVICE_NAME);
+#ifdef RT_USING_IPCM
+extern int rt_virt_tty_device_init();;
+    if(!rt_strcmp(RT_CONSOLE_DEVICE_NAME, "virt-tty"))
+        rt_virt_tty_device_init();
+#endif
+
 #endif /* RT_USING_CONSOLE */
 
 #ifdef RT_USING_COMPONENTS_INIT

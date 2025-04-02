@@ -51,8 +51,8 @@
 #endif
 
 #ifdef RT_USING_DFS_PROCFS
-#include "proc.h"
-#include "procfs.h"
+// #include "proc.h"
+// #include "procfs.h"
 #endif
 
 #define PID_MAX 10000
@@ -164,14 +164,15 @@ static void lwp_pid_put_locked(pid_t pid)
 }
 
 #ifdef RT_USING_DFS_PROCFS
-    rt_inline void _free_proc_dentry(rt_lwp_t lwp)
-    {
-        char pid_str[64] = {0};
+    // rt_inline void _free_proc_dentry(rt_lwp_t lwp)
+    // {
+    //     char pid_str[64] = {0};
 
-        rt_snprintf(pid_str, 64, "%d", lwp->pid);
-        pid_str[63] = 0;
-        proc_remove_dentry(pid_str, 0);
-    }
+    //     rt_snprintf(pid_str, 64, "%d", lwp->pid);
+    //     pid_str[63] = 0;
+    //     proc_remove_dentry(pid_str, 0);
+    // }
+    #define _free_proc_dentry(lwp)
 #else
     #define _free_proc_dentry(lwp)
 #endif
@@ -203,7 +204,7 @@ static void lwp_pid_set_lwp_locked(pid_t pid, struct rt_lwp *lwp)
 #ifdef RT_USING_DFS_PROCFS
         if (pid)
         {
-            proc_pid(pid);
+            // proc_pid(pid);
         }
 #endif
     }

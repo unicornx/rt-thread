@@ -44,9 +44,9 @@ int mnt_init(void)
     while (mmcsd_wait_cd_changed(100) != MMCSD_HOST_PLUGED)
         ;
 
-    if (dfs_mount(BSP_SD_MNT_DEVNAME, "/mnt", "elm", 0, 0) != 0)
+    if (dfs_mount(BSP_SD_MNT_DEVNAME, "/sdcard", "elm", 0, 0) != 0)
     {
-        rt_kprintf("Dir /mnt mount failed!\n");
+        rt_kprintf("Dir /sdcard mount failed!\n");
     }
 #endif
 

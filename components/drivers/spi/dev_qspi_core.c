@@ -57,7 +57,7 @@ rt_err_t rt_qspi_configure(struct rt_qspi_device *device, struct rt_qspi_configu
     device->config.ddr_mode = cfg->ddr_mode;
     device->config.qspi_dl_width = cfg->qspi_dl_width;
 
-    return rt_spi_bus_configure(&device->parent);
+    return rt_spi_bus_configure(&device->parent,&cfg->parent);
 }
 
 rt_err_t rt_qspi_bus_register(struct rt_spi_bus *bus, const char *name, const struct rt_spi_ops *ops)

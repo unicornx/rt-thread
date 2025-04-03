@@ -47,15 +47,136 @@ static rt_ssize_t _spi_bus_device_write(rt_device_t dev,
     return rt_spi_transfer(bus->owner, buffer, RT_NULL, size);
 }
 
+static rt_err_t _spi_bus_device_control(rt_device_t dev,
+                                        int         cmd,
+                                        void       *args)
+{
+    struct rt_spi_bus *bus;
+    rt_err_t ret = -RT_EINVAL;
+
+    bus = (struct rt_spi_bus *)dev;
+    RT_ASSERT(bus != RT_NULL);
+    RT_ASSERT(bus->owner != RT_NULL);
+
+    switch (cmd)
+    {
+        case RT_SPI_DEV_CTRL_CONFIG:
+            if (bus->mode & RT_SPI_BUS_MODE_QSPI)
+                ret = rt_qspi_configure((struct rt_qspi_device*)bus->owner, args);
+            else
+                ret = rt_spi_configure(bus->owner, args);
+            break;
+        case RT_SPI_DEV_CTRL_RW:
+            if (bus->mode & RT_SPI_BUS_MODE_QSPI)
+                ret = rt_qspi_transfer_message((struct rt_qspi_device*)bus->owner, args);
+            else
+                ret = rt_spi_transfer_message(bus->owner, args);
+            break;
+        default:
+            break;
+    }
+
+    return ret;
+}
+
+rt_err_t  _spi_bus_device_open(rt_device_t dev, rt_uint16_t oflag)
+{
+    rt_err_t res;
+    struct rt_spi_bus *bus;
+
+    bus = (struct rt_spi_bus*)dev;
+    rt_mutex_take(&(bus->lock), RT_WAITING_FOREVER);
+    if (bus->owner == NULL)
+    {
+        char dev_name[32];
+        rt_snprintf(dev_name, sizeof(dev_name), "%s_dev", bus->parent.parent.name);
+        if (bus->mode & RT_SPI_BUS_MODE_QSPI)
+        {
+            struct rt_qspi_device* qspi_device = rt_malloc(sizeof(struct rt_qspi_device));
+            struct rt_qspi_configuration cfg = {
+                .parent.mode = 0,
+                // .parent.cs_mode = 0,
+                // .parent.cs = 0,
+                .parent.data_width = 8,
+                .parent.max_hz = 1000000,
+                .ddr_mode = 0,
+                .medium_size = 0,
+                .qspi_dl_width = 1,
+            };
+            if (qspi_device == RT_NULL)
+            {
+                rt_kprintf("no memory, alloc %s failed\n", dev_name);
+                goto exit;
+            }
+            rt_memset(qspi_device, 0, sizeof(struct rt_qspi_device));
+            rt_memcpy(&qspi_device->config, &cfg, sizeof(struct rt_qspi_configuration));
+            res = rt_spi_bus_attach_device(&qspi_device->parent, dev_name, bus->parent.parent.name, RT_NULL);
+            if (res != RT_EOK)
+            {
+                rt_free(qspi_device);
+                rt_kprintf("%s attach  failed\n", dev_name);
+                goto exit;
+            }
+            bus->owner = &qspi_device->parent;
+            rt_spi_bus_configure(&qspi_device->parent,&cfg.parent);
+        } else {
+            struct rt_spi_configuration cfg = {
+                .mode = 0,
+                // .cs_mode = 0,
+                // .cs = 0,
+                .data_width = 8,
+                .max_hz = 1000000,
+            };
+            struct rt_spi_device* spi_device = rt_malloc(sizeof(struct rt_spi_device));
+            if (spi_device == RT_NULL)
+            {
+                rt_kprintf("no memory, alloc %s failed\n", dev_name);
+                goto exit;
+            }
+            rt_memset(spi_device, 0, sizeof(struct rt_spi_device));
+            rt_memcpy(&spi_device->config, &cfg, sizeof(struct rt_spi_configuration));
+            res = rt_spi_bus_attach_device(spi_device, dev_name, bus->parent.parent.name, RT_NULL);
+            if (res != RT_EOK)
+            {
+                rt_free(spi_device);
+                rt_kprintf("%s attach  failed\n", dev_name);
+                goto exit;
+            }
+            bus->owner = spi_device;
+            rt_spi_configure(spi_device, &cfg);
+        }
+    }
+exit:
+    rt_mutex_release(&(bus->lock));
+    return 0;
+}
+
+rt_err_t  _spi_bus_device_close(rt_device_t dev)
+{
+    rt_err_t res;
+    struct rt_spi_bus *bus = (struct rt_spi_bus *)dev;
+
+    res = rt_device_unregister(&bus->owner->parent);
+    if (res != RT_EOK)
+    {
+        rt_kprintf("device unregister failed!\n");
+        return res;
+    }
+    rt_free(bus->owner);
+    bus->owner = NULL;
+
+    return 0;
+}
+
 #ifdef RT_USING_DEVICE_OPS
 const static struct rt_device_ops spi_bus_ops =
 {
     RT_NULL,
-    RT_NULL,
-    RT_NULL,
+    _spi_bus_device_open,
+    _spi_bus_device_close,
     _spi_bus_device_read,
     _spi_bus_device_write,
-    RT_NULL
+    _spi_bus_device_control
 };
 #endif
 

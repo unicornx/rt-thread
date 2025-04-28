@@ -46,6 +46,7 @@ static pdma_reg_t *pdma_reg;
 
 static size_t g_pdma_page_size[8];
 static bool g_pdma_alloc_page[8];
+static rt_uint64_t saddr_high[8];
 /***************************************************************
 * general cfg
 ***************************************************************/
@@ -185,8 +186,8 @@ static rt_uint32_t *pdma_llt_cal(usr_pdma_cfg_t pdma_cfg)
 
     rt_hw_cpu_dcache_clean_invalidate_local((uint64_t*)llt_list, sizeof(pdma_llt_t)*list_num);
 
-    // return (rt_uint32_t *)llt_list;
-    return (void *)((char *)llt_list + PV_OFFSET);
+    return (rt_uint32_t *)llt_list;
+    // return (void *)((char *)llt_list + PV_OFFSET);
 }
 
 int k_pdma_config(usr_pdma_cfg_t pdma_cfg)
@@ -204,7 +205,9 @@ int k_pdma_config(usr_pdma_cfg_t pdma_cfg)
 
     pdma_reg->pdma_ch_reg[ch].ch_cfg = pdma_cfg.pdma_ch_cfg;
     pdma_reg->ch_peri_dev_sel[ch] = pdma_cfg.device;
-    pdma_reg->pdma_ch_reg[ch].ch_llt_saddr = (rt_uint32_t)(intptr_t)pdma_llt_cal(pdma_cfg);
+    rt_uint32_t *p = pdma_llt_cal(pdma_cfg);
+    pdma_reg->pdma_ch_reg[ch].ch_llt_saddr = (rt_uint32_t)(intptr_t)p;
+    saddr_high[ch] = ((rt_uint64_t)p)>>32;   
 
     return 0;
 }
@@ -212,7 +215,8 @@ int k_pdma_config(usr_pdma_cfg_t pdma_cfg)
 void k_pdma_llt_free(rt_uint8_t ch)
 {
     rt_uint32_t *llt_list;
-    llt_list = (rt_uint32_t *)(intptr_t)pdma_reg->pdma_ch_reg[ch].ch_llt_saddr;
+    // llt_list = (rt_uint32_t *)(intptr_t)pdma_reg->pdma_ch_reg[ch].ch_llt_saddr;
+    llt_list = (rt_uint32_t *)(pdma_reg->pdma_ch_reg[ch].ch_llt_saddr + (saddr_high[ch]<<32));
     if (g_pdma_alloc_page[ch])
     {
         rt_pages_free(llt_list, g_pdma_page_size[ch]);

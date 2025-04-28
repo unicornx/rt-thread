@@ -281,11 +281,45 @@ static void kd_uart_init(volatile void *uart_base, int index)
 
 static rt_err_t uart_open(rt_device_t dev, rt_uint16_t oflag)
 {
+    rt_base_t level;
+
+    struct kd_uart_device *kd_uart_device = (struct kd_uart_device *)dev->user_data;
+    struct rt_serial_rx_fifo *kd_rx_fifo = kd_uart_device->kd_rx_fifo;
+
+    // if(0x00 == kd_uart_device->dev_open_ref_cnt) {
+        level = rt_hw_interrupt_disable();
+
+        kd_rx_fifo->get_index = 0;
+        kd_rx_fifo->put_index = 0;
+        kd_rx_fifo->is_full = RT_FALSE;
+
+        rt_hw_interrupt_enable(level);
+    // }
+
+    // kd_uart_device->dev_open_ref_cnt ++;
+
     return RT_EOK;
 }
 
 rt_err_t uart_close(rt_device_t dev)
 {
+    rt_base_t level;
+
+    struct kd_uart_device *kd_uart_device = (struct kd_uart_device *)dev->user_data;
+    struct rt_serial_rx_fifo *kd_rx_fifo = kd_uart_device->kd_rx_fifo;
+
+    // kd_uart_device->dev_open_ref_cnt --;
+
+    // if(0x00 == kd_uart_device->dev_open_ref_cnt) {
+        level = rt_hw_interrupt_disable();
+
+        kd_rx_fifo->get_index = 0;
+        kd_rx_fifo->put_index = 0;
+        kd_rx_fifo->is_full = RT_FALSE;
+
+        rt_hw_interrupt_enable(level);
+    // }
+
     return RT_EOK;
 }
 

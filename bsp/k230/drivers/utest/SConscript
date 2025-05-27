@@ -1,0 +1,10 @@
+from building import *
+
+src = []
+
+if GetDepend('RT_UTEST_USING_ALL_CASES') or GetDepend('BSP_UTEST_DRIVERS'):
+    src += Glob('*.c')
+
+group = DefineGroup('utestcases', src, depend = [''])
+
+Return('group')

@@ -50,7 +50,9 @@ static void pmu_isolation_rtc(void)
 
     volatile void *reg_pmu = rt_ioremap((void*)PMU_BASE_ADDR, PMU_IO_SIZE);
     addr = (uint32_t*)(reg_pmu + 0x48);
+    rt_kprintf("----> 1\n");
     data = *addr;
+    rt_kprintf("----> 2\n");
     data |= 0x06;
     *addr = data;
 

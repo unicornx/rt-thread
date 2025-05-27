@@ -339,6 +339,9 @@
 
 /* Utilities */
 
+#define RT_USING_UTEST
+#define UTEST_THR_STACK_SIZE 4096
+#define UTEST_THR_PRIORITY 20
 #define RT_USING_RESOURCE_ID
 #define RT_USING_ADT
 #define RT_USING_ADT_AVL
@@ -564,6 +567,7 @@
 #define BSP_USING_SDIO
 #define BSP_USING_SDIO0
 #define BSP_SD_MNT_DEVNAME "sd0p1"
+#define BSP_UTEST_DRIVERS
 /* end of Drivers Configuration */
 #define BOARD_fpgac908
 #define __STACKSIZE__ 65536

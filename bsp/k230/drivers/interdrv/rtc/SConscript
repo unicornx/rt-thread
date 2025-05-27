@@ -3,10 +3,10 @@
 from building import *
 
 cwd     = GetCurrentDir()
-src     = Glob('*.c') + Glob('*.S')
+src     = Glob('*.c')
 CPPPATH = [cwd]
 
-group = DefineGroup('RTC', src, depend = ['RT_USING_RTC_PMU'], CPPPATH = CPPPATH)
+group = DefineGroup('RTC', src, depend = [''], CPPPATH = CPPPATH)
 
 objs = [group]
 

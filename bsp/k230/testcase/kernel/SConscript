@@ -1,0 +1,13 @@
+Import('rtconfig')
+from building import *
+
+cwd     = GetCurrentDir()
+src     = []
+CPPPATH = [cwd]
+
+if GetDepend(['UTEST_I2C_SSD1306']):
+    src += ['i2c_ssd1306_test.c']
+
+group = DefineGroup('utestcases', src, depend = ['RT_USING_UTEST'], CPPPATH = CPPPATH)
+
+Return('group')

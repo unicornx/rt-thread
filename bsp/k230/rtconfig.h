@@ -213,6 +213,7 @@
 #define CPUTIME_TIMER_FREQ 25000000
 #define RT_USING_I2C
 #define RT_USING_I2C_BITOPS
+#define RT_USING_ADC
 #define RT_USING_NULL
 #define RT_USING_ZERO
 #define RT_USING_RANDOM
@@ -578,16 +579,13 @@
 
 /* Drivers Configuration */
 
+#define BSP_USING_ADC
+#define BSP_USING_PDAM
 #define BSP_USING_HARDLOCK
 #define BSP_USING_SDIO
 #define BSP_USING_SDIO0
 #define BSP_SD_MNT_DEVNAME "sd0p1"
 /* end of Drivers Configuration */
-
-/* Kernel Testcase */
-
-#define UTEST_I2C_SSD1306
-/* end of Kernel Testcase */
 #define BOARD_fpgac908
 #define __STACKSIZE__ 65536
 #define BSP_ROOTFS_TYPE_ELMFAT

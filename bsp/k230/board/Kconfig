@@ -5,6 +5,11 @@ menu "Drivers Configuration"
         select RT_USING_ADC
         default n
 
+    config BSP_USING_PDAM
+        bool "Enable PDAM"
+        select RT_USING_PDAM
+        default n
+
     config BSP_USING_HARDLOCK
         bool "Enable Hard-Lock"
         default y

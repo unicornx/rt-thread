@@ -9,7 +9,6 @@ PKGS_DIR := packages
 source "$RTT_DIR/Kconfig"
 source "$PKGS_DIR/Kconfig"
 rsource "board/Kconfig"
-rsource "testcase/kernel/Kconfig"
 
 config BOARD_fpgac908
     bool

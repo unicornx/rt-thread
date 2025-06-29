@@ -1,7 +1,0 @@
-menu "Kernel Testcase"
-
-config UTEST_I2C_SSD1306
-    bool "i2c oled test"
-    default n
-
-endmenu

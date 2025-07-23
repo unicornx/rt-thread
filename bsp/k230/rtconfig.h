@@ -217,6 +217,7 @@
 #define RT_USING_NULL
 #define RT_USING_ZERO
 #define RT_USING_RANDOM
+#define RT_USING_PWM
 #define RT_USING_RTC
 #define RT_USING_SDIO
 #define RT_SDIO_STACK_SIZE 8192
@@ -342,6 +343,10 @@
 
 /* Utilities */
 
+#define RT_USING_UTEST
+#define UTEST_THR_STACK_SIZE 4096
+#define UTEST_THR_PRIORITY 20
+#define RT_UTEST_USING_ALL_CASES
 #define RT_USING_RESOURCE_ID
 #define RT_USING_ADT
 #define RT_USING_ADT_AVL
@@ -580,7 +585,7 @@
 /* Drivers Configuration */
 
 #define BSP_USING_ADC
-#define BSP_USING_PDAM
+#define BSP_USING_PWM
 #define BSP_USING_HARDLOCK
 #define BSP_USING_SDIO
 #define BSP_USING_SDIO0

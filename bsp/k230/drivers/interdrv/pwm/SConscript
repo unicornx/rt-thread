@@ -6,6 +6,6 @@ cwd     = GetCurrentDir()
 src     = Glob('*.c')
 CPPPATH = [cwd]
 
-group = DefineGroup('I2C', src, depend = ['BSP_USING_PDAM'], CPPPATH = CPPPATH)
+group = DefineGroup('ADC', src, depend = ['BSP_USING_PWM'], CPPPATH = CPPPATH)
 
 Return('group')

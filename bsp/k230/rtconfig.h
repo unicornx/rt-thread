@@ -130,6 +130,8 @@
 #define KERNEL_VADDR_START 0xffffffc000000000
 #define ARCH_RISCV
 #define ARCH_RISCV_FPU
+#define ARCH_RISCV_VECTOR
+#define ARCH_VECTOR_VLEN_128
 #define ARCH_RISCV_FPU_D
 #define ARCH_RISCV64
 #define ARCH_USING_NEW_CTX_SWITCH
@@ -211,9 +213,11 @@
 #define RT_USING_CPUTIME
 #define RT_USING_CPUTIME_RISCV
 #define CPUTIME_TIMER_FREQ 25000000
+#define RT_USING_ADC
 #define RT_USING_NULL
 #define RT_USING_ZERO
 #define RT_USING_RANDOM
+#define RT_USING_PWM
 #define RT_USING_RTC
 #define RT_USING_SDIO
 #define RT_SDIO_STACK_SIZE 8192
@@ -476,6 +480,22 @@
 /* Kendryte SDK */
 
 /* end of Kendryte SDK */
+
+/* WCH HAL & SDK Drivers */
+
+/* end of WCH HAL & SDK Drivers */
+
+/* AT32 HAL & SDK Drivers */
+
+/* end of AT32 HAL & SDK Drivers */
+
+/* HC32 DDL Drivers */
+
+/* end of HC32 DDL Drivers */
+
+/* NXP HAL & SDK Drivers */
+
+/* end of NXP HAL & SDK Drivers */
 /* end of HAL & SDK Drivers */
 
 /* sensors drivers */
@@ -560,13 +580,15 @@
 
 /* Drivers Configuration */
 
+#define BSP_USING_PWM
 #define BSP_USING_HARDLOCK
 #define BSP_USING_SDIO
 #define BSP_USING_SDIO0
 #define BSP_SD_MNT_DEVNAME "sd0p1"
 /* end of Drivers Configuration */
-#define BOARD_fpgac908
+#define BOARD_C908
 #define __STACKSIZE__ 65536
 #define BSP_ROOTFS_TYPE_ELMFAT
+#define BSP_RISCV_FPU_D
 
 #endif
